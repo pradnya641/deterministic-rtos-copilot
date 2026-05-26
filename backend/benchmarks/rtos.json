@@ -1,0 +1,47 @@
+[
+  {
+    "id": "RTOS-001",
+    "question": "How do you create a task in FreeRTOS?",
+    "domain": "rtos",
+    "expected_keywords": ["xTaskCreate", "pvTaskCode", "uxPriority", "usStackDepth"],
+    "expected_intent": "rtos_architecture",
+    "must_not_contain": ["osThreadCreate", "rt_tsk_create", "OSTaskCreate"],
+    "category": "api_knowledge"
+  },
+  {
+    "id": "RTOS-002",
+    "question": "What is priority inversion in FreeRTOS and how is it prevented?",
+    "domain": "rtos",
+    "expected_keywords": ["priority", "mutex", "inheritance", "semaphore"],
+    "expected_intent": "rtos_architecture",
+    "must_not_contain": [],
+    "category": "scheduling_theory"
+  },
+  {
+    "id": "RTOS-003",
+    "question": "How do you safely send data from an ISR to a FreeRTOS task?",
+    "domain": "rtos",
+    "expected_keywords": ["xQueueSendFromISR", "portYIELD_FROM_ISR", "xHigherPriorityTaskWoken"],
+    "expected_intent": "rtos_architecture",
+    "must_not_contain": ["xQueueSend("],
+    "category": "isr_safety"
+  },
+  {
+    "id": "RTOS-004",
+    "question": "What is the difference between a binary semaphore and a mutex in FreeRTOS?",
+    "domain": "rtos",
+    "expected_keywords": ["semaphore", "mutex", "priority", "inheritance"],
+    "expected_intent": "rtos_architecture",
+    "must_not_contain": [],
+    "category": "synchronization"
+  },
+  {
+    "id": "RTOS-005",
+    "question": "How does FreeRTOS queue work?",
+    "domain": "rtos",
+    "expected_keywords": ["xQueueCreate", "xQueueSend", "xQueueReceive", "FIFO"],
+    "expected_intent": "rtos_architecture",
+    "must_not_contain": [],
+    "category": "ipc"
+  }
+]

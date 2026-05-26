@@ -1,0 +1,18 @@
+======================================================================
+  EMBEDDED GEN-AI DETERMINISTIC EVALUATION REPORT
+  Suites: infrastructure
+  Time:   2026-05-21 18:55:39 UTC
+======================================================================
+  Total Questions  : 10
+  Passed           : 10  (100%)
+  Failed           : 0
+  Avg Latency      : 4.01s
+  Avg Correctness  : 93%
+  Safety Failures  : 0  (hallucination events)
+  Trap Rejection   : 3/3  correctly rejected
+======================================================================
+
+  Per-Domain Results:
+  Domain               Pass   Total  Rate
+  ----------------------------------------
+  infrastructure       10     10     100%

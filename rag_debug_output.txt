@@ -1,0 +1,126 @@
+
+================================================================================
+QUERY: What is DLAB and why is it needed?
+RETRIEVED CONTEXT (first 2000 chars):
+DLAB = 1) bit description
+Bit Symbol Description Reset value
+7:0 DLM The UART0 Divisor Latch MSB Register, along with the U0DLL 
+register, determines the baud rate of the UART0.
+0x00
+Table 166: UART0 Fractional Divider Regist er (U0FDR - address 0xE000 C028) bit 
+description
+Bit Function Description Reset value
+3:0 DIVADDVAL Baudrate generation pre-scaler divisor value. If this field is 0, 
+fractional baudrate generator will not impact the UART0 
+baudrate.
+0
+7:4 MULVAL Baudrate pre-scaler multiplier value. This field must be greater 
+or equal 1 for UART0 to operate properly, regardless of 
+whether the fractional baudrate generator is used or not. 
+1
+31:8 - Reserved, user software should not write ones to reserved bits. 
+The value read from a reserved bit is not defined.
+NA
+UART0 baudrate
+PCLK
+16 256 U0DLM U0DLL+ 1 DivAddVal
+MulVal-----------------------------+
+
+----------------------------------------------------------------------------------------------------------------------------------=
+UM10139 All information provided in this document is subject to legal disclaimers. © NXP B.V. 2012. All rights reserved.
+User manual Rev. 4 — 23 April 2012 151 of 354
+NXP Semiconductors UM10139
+Chapter 10: LPC214x UART0
+2. 0  DIVADDVAL  15
+If the U0FDR register value does not comply to these two requests then the fractional 
+divider output is undefined. If DIVADDVAL is zero then the fractional divider is disabled 
+and the clock will not be divided.
+
+DLAB = 1) bit description
+Bit Symbol Description Reset value
+7:0 DLMSB The UART1 Divisor Latch M SB Register, along with the U1DLL 
+register, determines the baud rate of the UART1.
+0x00
+Table 183: UART1 Fractional Divider Register (U1FDR - address 0xE001 0028) bit description
+Bit Function Description Reset value
+3:0 DIVADDVAL Baudrate generation pre-scaler divisor value. If this field is 0, 
+fractional baudrate generator will not impact the UART1 
+baudrate.
+0
+7:4 MULVAL Baudrate pre-scaler multiplier value. This field must 
+================================================================================
+
+================================================================================
+QUERY: What is the role of the VIC in interrupt handling?
+RETRIEVED CONTEXT (first 2000 chars):
+VIC was modified so that the interrupt that triggered the sequence starting with step 1) is 
+no longer pending -interrupt got disabled in the executed code. In this case, the VIC will 
+not be able to clearly identify the interrupt that generated the interrupt request, and as a 
+result the VIC will return the default interrupt VicDefVectAddr (0xFFFF F034).
+This potentially disastrous chain of events can be prevented in two ways:
+1. Application code should be set up in a way to prevent the spurious interrupts from 
+occurring. Simple guarding of changes to the VIC may not be enough since, for 
+example, glitches on level sensitive interrupts can also cause spurious interrupts.
+2. VIC default handler should be set up and tested properly.
+7.6.1 Details and case studies on spurious interrupts
+This chapter contains details that can be obtained from the official ARM website, FAQ 
+section under the "Technical Support" link.
+What happens if an interrupt occurs as it is being disabled?
+Applies to: ARM7TDMI
+If an interrupt is received by the core during execution of an instruction that disables 
+interrupts, the ARM7 family will still take the interrupt. This occurs for both IRQ and FIQ 
+interrupts.
+For example, consider the following instruction sequence:
+MRS  r0, cpsr
+ORR  r0, r0, #I_Bit:OR:F_Bit     ;disable IRQ and FIQ interrupts
+MSR  cpsr_c, r0
+If an IRQ interrupt is received during execution of the MSR instruction, then the behavior 
+will be as follows:
+
+interrupt source should be classified as FIQ. Classifying more than one interrupt sources 
+as FIQ will increase the interrupt latency.
+Following the completion of the desired interrupt service routine, clearing of the interrupt 
+flag on the peripheral level will propagate to corresponding bits in VIC registers 
+(VICRawIntr, VICFIQStatus and VICIRQStatus). Also, before the next interrupt can be 
+serviced, it is necessary that write is performed into the VICVectAddr register before the 
+return from interrupt is executed. This
+================================================================================
+
+================================================================================
+QUERY: How do I configure the PLL for 60MHz?
+RETRIEVED CONTEXT (first 2000 chars):
+4.8.5 PLL Interrupt  . . . . . . . . . . . . . . . . . . . . . . . . .  37
+4.8.6 PLL Modes. . . . . . . . . . . . . . . . . . . . . . . . . . .  37
+4.8.7 PLL Feed register (PLL0FEED - 0xE01F C08C, 
+PLL1FEED - 0xE01F C0AC) . . . . . . . . . . . . .  38
+4.8.8 PLL and Power-down mode. . . . . . . . . . . . . .  38
+4.8.9 PLL frequency calculation . . . . . . . . . . . . . . .  39
+4.8.10 Procedure for determining PLL settings. . . . .  39
+4.8.11 PLL0 and PLL1 configuring examples . . . . . .  40
+4.9 Power control  . . . . . . . . . . . . . . . . . . . . . . . . .  41
+4.9.1 Register description . . . . . . . . . . . . . . . . . . . .  41
+4.9.2 Power Control register (PCON - 
+0xE01F C0C0) . . . . . . . . . . . . . . . . . . . . . . . .  41
+4.9.3 Power Control for Peripherals register (PCONP - 
+0xE01F C0C4) . . . . . . . . . . . . . . . . . . . . . . . .  43
+4.9.4 Power control usage notes  . . . . . . . . . . . . . .  44
+4.10 Reset  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  44
+4.10.1 Reset Source Identification Register (RSIR - 
+0xE01F C180) . . . . . . . . . . . . . . . . . . . . . . . .  45
+4.11 APB divider . . . . . . . . . . . . . . . . . . . . . . . . . . .  46
+4.11.1 Register description . . . . . . . . . . . . . . . . . . . .  46
+4.11.2 APBDIV register (APBDIV - 0xE01F C100) . .  47
+4.12 Wakeup timer. . . . . . . . . . . . . . . . . . . . . . . . . .  47
+4.13 Brown-out detection . . . . . . . . . . . . . . . . . . . .  48
+
+remedy the situation.
+4.8.3 PLL Configuration register (PLL0CFG - 0xE01F C084, PLL1CFG - 
+0xE01F C0A4)
+The PLLCFG register contains the PLL multiplier and divider values. Changes to the 
+PLLCFG register do not take effect until a correct PLL feed sequence has been given (see 
+Section 4.8.7 “PLL Feed register (PLL0FEED - 0xE01F C08C, PLL1FEED - 
+0xE01F C0AC)” on page 38). Calculations for the PLL frequency, and multiplier and 
+divider values are found in the PLL Frequency Calculation section on page 39.
+ 
+Table 21. PLL Contro
+================================================================================

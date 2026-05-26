@@ -1,0 +1,1 @@
+/* Empty SPI.h stub */

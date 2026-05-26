@@ -1,0 +1,723 @@
+=== GEN-AI SYSTEM FINAL EVALUATION (36 QUESTIONS) ===
+
+QUESTION 1: What is the resolution of the ADC in LPC2148 and how is it calculated?
+--------------------------------------------------
+STATUS: success
+TIME: 2.16s
+
+ANSWER:
+### ? Hardware Insight: ADC Resolution (LPC2148)
+The LPC2148 features a **10-bit** successive approximation ADC.
+
+**Reasoning Chain:**
+- **Total Steps:** A 10-bit converter provides 2^10 = **1024** discrete levels.
+- **LSB Calculation:** The voltage represented by the Least Significant Bit is `VREF / 1024`.
+- **Example:** If VREF = 3.3V, then 1 LSB = 3.3V / 1024 ? **3.22 mV**.
+
+**Hardware Result:**
+- The digital output range is **0x000 to 0x3FF**.
+- **Accuracy Note:** Any change smaller than 3.22 mV (at 3.3V VREF) cannot be resolved by the hardware.
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 2: What is the role of the AD0CR register?
+--------------------------------------------------
+STATUS: success
+TIME: 2.07s
+
+ANSWER:
+### ? Hardware Insight: AD0CR Register Role
+**AD0CR** (A/D Control Register) is the primary configuration register for the ADC.
+
+**Reasoning Chain:**
+- **SEL (7:0):** Selects active analog channels.
+- **CLKDIV (15:8):** Produces ADC clock (PCLK / (CLKDIV + 1)). Must be ? 4.5 MHz.
+- **PDN (21):** Power Down bit. Must be 1 for operation.
+- **START (26:24):** Controls conversion start triggers.
+
+**Hardware Result:**
+- Incorrect CLKDIV results in inaccurate data.
+- PDN=0 results in no conversion activity.
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 3: What does the DONE bit indicate in ADC conversion?
+--------------------------------------------------
+STATUS: success
+TIME: 2.12s
+
+ANSWER:
+### ? Hardware Insight: ADC DONE Bit
+- DONE = 1 ? conversion complete
+- DONE = 0 ? conversion ongoing
+- Result valid ONLY when DONE = 1
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 4: What is the function of the PINSEL register in LPC2148?
+--------------------------------------------------
+STATUS: success
+TIME: 2.08s
+
+ANSWER:
+### ? Hardware Insight: PINSEL Register Function
+The **PINSEL** registers (0-2) control the multiplexing of internal peripheral signals to physical pins.
+
+**Reasoning Chain:**
+- Pins default to **GPIO** function after reset.
+- To use a peripheral (e.g. UART or ADC), the corresponding bits in PINSEL must be set to the peripheral function.
+
+**Hardware Result:**
+- If PINSEL is not set, the peripheral might be running internally, but no signals will reach the outside world.
+- **Rule:** PINSEL setup is mandatory for all non-GPIO operations.
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 5: What is the purpose of PWMMR0 in PWM?
+--------------------------------------------------
+STATUS: success
+TIME: 2.07s
+
+ANSWER:
+### ? Hardware Insight: PWMMR0 Role
+**PWMMR0** is the **Match Register 0** of the PWM module. It defines the **PWM Period**.
+
+**Reasoning Chain:**
+- The PWM Timer Counter (TC) resets to 0 when it matches the value in MR0.
+- All other match registers (MR1-MR6) define the **Duty Cycle** (toggle points) within that period.
+
+**Hardware Result:**
+- If MR0 = 0, the timer resets instantly and the PWM module stalls.
+- **Rule:** MR0 MUST be greater than 0 for any waveform generation.
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 6: Why must the ADC clock be limited to 4.5 MHz?
+--------------------------------------------------
+STATUS: success
+TIME: 2.11s
+
+ANSWER:
+### ? Hardware Insight: ADC Clock Constraint
+The LPC2148 ADC hardware requires the clock frequency to be **? 4.5 MHz**.
+
+**Reasoning Chain:**
+- The Successive Approximation (SAR) logic requires a specific settling time per bit.
+- If the clock is too fast, the internal comparator cannot settle, leading to non-linearities and bit errors.
+
+**Hardware Result:**
+- **Symptom:** Unstable or completely random digital output values.
+- **Fix:** Set CLKDIV in AD0CR such that `PCLK / (CLKDIV + 1) <= 4.5 MHz`.
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 7: What happens if the ADC PDN bit is not set?
+--------------------------------------------------
+STATUS: success
+TIME: 2.15s
+
+ANSWER:
+### ? Hardware Insight: ADC Power-Down (PDN) bit
+**AD0CR** bit 21 is the **PDN** (Power Down) bit.
+
+**Reasoning Chain:**
+- **PDN = 0:** The ADC is in operational power-down mode. The internal reference voltage ladder and comparator are disconnected to save power.
+- **PDN = 1:** The ADC is powered on and ready for conversion.
+
+**Hardware Result:**
+- If PDN is 0, setting the **START** bits will be ignored, and the **DONE** bit will never be set.
+- **Dependency:** PDN must be 1 for any ADC activity.
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 8: Why is it necessary to clear the START bits after ADC conversion?
+--------------------------------------------------
+STATUS: success
+TIME: 2.08s
+
+ANSWER:
+### ? Hardware Insight: ADC START Bits
+- START = 000 ? no conversion
+- Non-zero START ? conversion begins
+- If not set ? ADC idle, DONE stays 0
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 9: What happens if PWMMR1 > PWMMR0?
+--------------------------------------------------
+STATUS: success
+TIME: 2.08s
+
+ANSWER:
+### ? Hardware Insight: PWM Match Condition Error
+If PWMMR1 > PWMMR0:
+- TC resets at MR0 before reaching MR1
+- No match event occurs
+Result: Output stuck (invalid duty cycle)
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 10: Why does UART require DLAB to be cleared after setting baud rate?
+--------------------------------------------------
+STATUS: success
+TIME: 2.13s
+
+ANSWER:
+### ? Hardware Insight: UART DLAB Behavior
+**DLAB** (Divisor Latch Access Bit) is **Bit 7** of the **UxLCR** register.
+
+**Reasoning Chain:**
+- **DLAB = 1:** The CPU can access the Baud Rate Divisors (**UxDLL** and **UxDLM**).
+- **DLAB = 0:** The CPU can access the **UxTHR** (Transmit) and **UxRBR** (Receive) registers.
+
+**Hardware Result:**
+- **Critical Error:** If DLAB is not cleared (set to 0) after initialization, any attempt to send data will instead overwrite the baud rate divisor.
+- **Result:** Communication will fail completely.
+
+---
+**Source:** Protocol Knowledge Base
+
+================================================================================
+
+QUESTION 11: What happens if PWMMR0 = 0?
+--------------------------------------------------
+STATUS: success
+TIME: 2.09s
+
+ANSWER:
+### ? Hardware Insight: PWMMR0 Role
+**PWMMR0** is the **Match Register 0** of the PWM module. It defines the **PWM Period**.
+
+**Reasoning Chain:**
+- The PWM Timer Counter (TC) resets to 0 when it matches the value in MR0.
+- All other match registers (MR1-MR6) define the **Duty Cycle** (toggle points) within that period.
+
+**Hardware Result:**
+- If MR0 = 0, the timer resets instantly and the PWM module stalls.
+- **Rule:** MR0 MUST be greater than 0 for any waveform generation.
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 12: What happens if ADC input pin is not configured using PINSEL?
+--------------------------------------------------
+STATUS: success
+TIME: 2.11s
+
+ANSWER:
+### ?? ADC Configuration
+
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(3 << 24)) | (1 << 24);
+
+    /* AD0CR: Channel 1, PDN=1 */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+}
+```
+
+**Register:** AD0CR ? SEL, CLKDIV, PDN, START bits must all be set correctly.
+
+================================================================================
+
+QUESTION 13: What happens if ADC channel is selected but START bit is never set?
+--------------------------------------------------
+STATUS: success
+TIME: 2.13s
+
+ANSWER:
+### ? Hardware Insight: ADC START Bits
+- START = 000 ? no conversion
+- Non-zero START ? conversion begins
+- If not set ? ADC idle, DONE stays 0
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 14: What happens if UART divisor is set incorrectly?
+--------------------------------------------------
+STATUS: success
+TIME: 2.09s
+
+ANSWER:
+### ? Hardware Insight: UART Divisor Error
+If UART divisor is incorrect:
+- Baud rate mismatch occurs
+- Receiver samples bits at wrong time
+Result:
+- Framing errors
+- Corrupted data
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 15: What happens if AD0DR is read before DONE = 1?
+--------------------------------------------------
+STATUS: success
+TIME: 2.14s
+
+ANSWER:
+### ? Hardware Insight: ADC Read Before DONE
+- Reading AD0DR before DONE = 1
+? returns stale or invalid data
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 16: Explain ADC noise behavior in LPC2148
+--------------------------------------------------
+STATUS: success
+TIME: 2.10s
+
+ANSWER:
+### ? Hardware Insight: ADC Noise Behavior
+
+Causes:
+- Power supply fluctuations (VDD noise)
+- Digital switching interference (GPIO/PWM)
+- High input impedance (poor capacitor charging)
+- Quantization (?1 LSB uncertainty)
+
+Result:
+- Output jitter (?1?3 counts)
+
+Fix:
+- Stable supply + decoupling
+- Low impedance input
+- Avoid digital interference
+- Use averaging
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 17: Why do ADC readings fluctuate even for constant input?
+--------------------------------------------------
+STATUS: success
+TIME: 2.13s
+
+ANSWER:
+### ? Hardware Insight: ADC Noise Behavior
+
+Causes:
+- Power supply fluctuations (VDD noise)
+- Digital switching interference (GPIO/PWM)
+- High input impedance (poor capacitor charging)
+- Quantization (?1 LSB uncertainty)
+
+Result:
+- Output jitter (?1?3 counts)
+
+Fix:
+- Stable supply + decoupling
+- Low impedance input
+- Avoid digital interference
+- Use averaging
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 18: How does quantization affect ADC output?
+--------------------------------------------------
+STATUS: success
+TIME: 2.12s
+
+ANSWER:
+
+Quantization:
+- ADC converts continuous signal into discrete steps
+- Resolution = Vref / 1024
+Result:
+- Small variations below 1 LSB are lost
+
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 19: What is the role of the sample-and-hold circuit in ADC?
+--------------------------------------------------
+STATUS: success
+TIME: 2.09s
+
+ANSWER:
+
+Sample-and-Hold:
+- Captures input voltage before conversion
+- Holds it constant during SAR process
+
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 20: Why do high-impedance inputs increase ADC noise?
+--------------------------------------------------
+STATUS: success
+TIME: 2.17s
+
+ANSWER:
+### ? Hardware Insight: ADC Noise Behavior
+
+Causes:
+- Power supply fluctuations (VDD noise)
+- Digital switching interference (GPIO/PWM)
+- High input impedance (poor capacitor charging)
+- Quantization (?1 LSB uncertainty)
+
+Result:
+- Output jitter (?1?3 counts)
+
+Fix:
+- Stable supply + decoupling
+- Low impedance input
+- Avoid digital interference
+- Use averaging
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 21: Why is baud rate important in ADC configuration?
+--------------------------------------------------
+STATUS: success
+TIME: 2.14s
+
+ANSWER:
+### ? Invalid Hardware Query
+ADC does NOT use baud rate. It uses a sampling clock derived from PCLK via the **CLKDIV** bit in **AD0CR**.
+
+================================================================================
+
+QUESTION 22: How does PWM duty cycle affect ADC sampling?
+--------------------------------------------------
+STATUS: success
+TIME: 2.11s
+
+ANSWER:
+Invalid: PWM does not control ADC sampling. These are independent peripherals.
+
+================================================================================
+
+QUESTION 23: Can UART FIFO affect ADC conversion accuracy?
+--------------------------------------------------
+STATUS: success
+TIME: 2.10s
+
+ANSWER:
+### ?? Query Unclear
+Please specify the domain: hardware / RTOS / sensor / protocol / automotive.
+
+================================================================================
+
+QUESTION 24: How can you reduce ADC noise in hardware?
+--------------------------------------------------
+STATUS: success
+TIME: 2.13s
+
+ANSWER:
+### ? Hardware Insight: ADC Noise Behavior
+
+Causes:
+- Power supply fluctuations (VDD noise)
+- Digital switching interference (GPIO/PWM)
+- High input impedance (poor capacitor charging)
+- Quantization (?1 LSB uncertainty)
+
+Result:
+- Output jitter (?1?3 counts)
+
+Fix:
+- Stable supply + decoupling
+- Low impedance input
+- Avoid digital interference
+- Use averaging
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 25: Why should analog and digital grounds be separated?
+--------------------------------------------------
+STATUS: success
+TIME: 2.16s
+
+ANSWER:
+Information not found in provided manuals.
+
+================================================================================
+
+QUESTION 26: Why is averaging used in ADC readings?
+--------------------------------------------------
+STATUS: success
+TIME: 2.15s
+
+ANSWER:
+Information not found in provided manuals.
+
+================================================================================
+
+QUESTION 27: What happens if ADC clock is too low?
+--------------------------------------------------
+STATUS: success
+TIME: 2.07s
+
+ANSWER:
+
+If ADC clock is too low:
+- Conversion still works
+- Sampling rate decreases
+Result:
+- Slower response, but valid data
+
+
+---
+**Source:** Hardware Deterministic Engine
+
+================================================================================
+
+QUESTION 28: How does supply voltage stability affect ADC accuracy?
+--------------------------------------------------
+STATUS: success
+TIME: 2.18s
+
+ANSWER:
+Information not found in provided manuals.
+
+================================================================================
+
+QUESTION 29: Configure ADC and explain its noise behavior
+--------------------------------------------------
+STATUS: success
+TIME: 2.11s
+
+ANSWER:
+### ?? ADC Configuration
+
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(3 << 24)) | (1 << 24);
+
+    /* AD0CR: Channel 1, PDN=1 */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+}
+```
+
+**Register:** AD0CR ? SEL, CLKDIV, PDN, START bits must all be set correctly.
+
+================================================================================
+
+QUESTION 30: Initialize UART and explain DLAB role
+--------------------------------------------------
+STATUS: success
+TIME: 2.11s
+
+ANSWER:
+### ?? UART Configuration
+
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void UART0_Init(void)
+{
+    /* Step 1: Configure pins for UART0 */
+    PINSEL0 &= ~(15 << 0);
+    PINSEL0 |=  (5 << 0);
+
+    /* Step 2: Enable DLAB */
+    U0LCR = 0x83; 
+
+    /* Step 3: Set Baud Rate (9600)
+       DLL = PCLK / (16 * baud) */
+    U0DLL = 97;
+    U0DLM = 0;
+
+    /* Step 4: 8N1, Disable DLAB */
+    U0LCR = 0x03;
+    U0FCR = 0x07;
+}
+```
+
+**Critical:** DLAB must be cleared after baud rate setup (UxLCR bit 7 = 0).
+
+================================================================================
+
+QUESTION 31: Configure PWM and explain duty cycle behavior
+--------------------------------------------------
+STATUS: success
+TIME: 2.13s
+
+ANSWER:
+### ?? PWM Configuration
+
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void PWM_Init(void)
+{
+    /* Step 1: Select PWM1 function on P0.0 */
+    PINSEL0 = (PINSEL0 & ~(3 << 0)) | (2 << 0);
+    PWMPR = 0;
+    PWMMR0 = 1000;
+    PWMMR1 = 500;
+    PWMMCR = (1 << 1);
+    PWMPCR = (1 << 9);
+    PWMLER = (1 << 0) | (1 << 1);
+    PWMTCR = (1 << 0) | (1 << 3);
+}
+```
+
+**Rule:** PWMMR0 must be > 0. PWMMR1 must be ? PWMMR0.
+
+================================================================================
+
+QUESTION 32: Why is deterministic logic preferred over LLM in embedded systems?
+--------------------------------------------------
+STATUS: success
+TIME: 2.12s
+
+ANSWER:
+### ? System Insight: Deterministic Logic vs LLM
+In embedded systems, **Deterministic Logic** (Knowledge Bases) is preferred over LLM generation because:
+1. **Safety:** A register bit must be exactly right (e.g., Bit 31, not Bit 1). LLMs often hallucinate bit positions.
+2. **Reliability:** Hardware behavior is fixed. A Knowledge Base provides a 100% stable answer for a fixed datasheet.
+3. **Speed:** Deterministic lookups take milliseconds; LLM generation takes seconds.
+
+---
+**Source:** Architecture Knowledge Base
+
+================================================================================
+
+QUESTION 33: What is hallucination in AI and how did you prevent it?
+--------------------------------------------------
+STATUS: success
+TIME: 2.09s
+
+ANSWER:
+
+Hallucination = generating incorrect facts not grounded in verified data.
+Prevented in this system by:
+- Deterministic GOLD_INSIGHTS knowledge base (keyword + semantic matching)
+- Strict cross-domain validation layer
+- Hard fail-safe: no LLM generation for hardware queries
+- Forbidden register list checked on all answers
+
+
+================================================================================
+
+QUESTION 34: Explain your routing architecture
+--------------------------------------------------
+STATUS: success
+TIME: 2.19s
+
+ANSWER:
+### ?? System Architecture Template
+
+**Layers:**
+1. **Acquisition** ? Sensor reading (ADC / UART / SPI / I2C)
+2. **Processing**  ? Data validation, filtering, fusion
+3. **Actuation**   ? PWM / GPIO / CAN output
+4. **Communication** ? UART / CAN telemetry
+
+**RTOS Structure:**
+- Use FreeRTOS queues between layers.
+- High-priority task = acquisition.
+- Low-priority task = logging / display.
+
+Specify your sensor and peripheral set for a detailed blueprint.
+
+================================================================================
+
+QUESTION 35: Why did you implement a knowledge base instead of relying on LLM?
+--------------------------------------------------
+STATUS: success
+TIME: 2.15s
+
+ANSWER:
+
+Deterministic Logic vs LLM for Embedded Systems:
+1. Safety:      Register bits must be exactly right. LLMs hallucinate bit positions.
+2. Reliability: Hardware behavior is fixed per datasheet. KB = 100% stable answer.
+3. Speed:       Deterministic lookup = ~2 ms. LLM generation = 10-60 s.
+4. Auditability: KB answers can be traced to source document + page number.
+
+
+================================================================================
+
+QUESTION 36: What are limitations of RAG in hardware systems?
+--------------------------------------------------
+STATUS: success
+TIME: 2.14s
+
+ANSWER:
+### ?? System Architecture Template
+
+**Layers:**
+1. **Acquisition** ? Sensor reading (ADC / UART / SPI / I2C)
+2. **Processing**  ? Data validation, filtering, fusion
+3. **Actuation**   ? PWM / GPIO / CAN output
+4. **Communication** ? UART / CAN telemetry
+
+**RTOS Structure:**
+- Use FreeRTOS queues between layers.
+- High-priority task = acquisition.
+- Low-priority task = logging / display.
+
+Specify your sensor and peripheral set for a detailed blueprint.
+
+================================================================================
+

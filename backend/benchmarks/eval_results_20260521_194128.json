@@ -1,0 +1,990 @@
+[
+  {
+    "id": "AUTO-001",
+    "question": "What are the three layers of an ADAS software architecture?",
+    "domain": "automotive",
+    "category": "architecture",
+    "status": "success",
+    "latency_s": 2.11,
+    "answer_snippet": "# System Architecture: Obstacle Detection System (FreeRTOS + LPC2148 + HC-SR04)\n\n**Objective:** Continuously measure distance using HC-SR04 ultrasonic sensor, classify proximity zones, and trigger actuation (buzzer/LED) in real time.\n\n## Hardware Components\n- LPC2148 ARM7 MCU\n- HC-SR04 Ultrasonic Se",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "AUTO-002",
+    "question": "Explain the CAN bus frame structure and identifier types.",
+    "domain": "automotive",
+    "category": "can_bus",
+    "status": "success",
+    "latency_s": 2.16,
+    "answer_snippet": "### ? Communication Insight: CAN Bus\nThe Controller Area Network (CAN) bus is a differential, multi-master serial bus.\n\n**CAN Frame Structure:**\n- **SOF (Start of Frame):** 1 dominant bit to synchronize nodes.\n- **Arbitration Field:** Contains the identifier (determines priority).\n  - **Standard Fra",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "HW-001",
+    "question": "What is the resolution of the ADC in LPC2148 and how is it calculated?",
+    "domain": "hardware",
+    "category": "core_concept",
+    "status": "success",
+    "latency_s": 2.17,
+    "answer_snippet": "### ? Hardware Insight: ADC Resolution (LPC2148)\nThe LPC2148 features a **10-bit** successive approximation ADC.\n\n**Reasoning Chain:**\n- **Total Steps:** A 10-bit converter provides 2^10 = **1024** discrete levels.\n- **LSB Calculation:** The voltage represented by the Least Significant Bit is `VREF ",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "HW-002",
+    "question": "What is the role of the AD0CR register?",
+    "domain": "hardware",
+    "category": "register_knowledge",
+    "status": "success",
+    "latency_s": 2.08,
+    "answer_snippet": "### ? Hardware Insight: AD0CR Register Role\n- **SEL:** Selects analog channels.\n- **CLKDIV:** Produces ADC clock (must be ? 4.5 MHz).\n- **PDN:** Power Down bit (must be 1).\n- **START:** Controls conversion start.\n\n---\n**Source:** Hardware Deterministic Engine",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "HW-003",
+    "question": "What does the DONE bit indicate in ADC conversion?",
+    "domain": "hardware",
+    "category": "bit_behavior",
+    "status": "success",
+    "latency_s": 2.08,
+    "answer_snippet": "### ? Hardware Insight: ADC DONE Bit\n- DONE = 1 ? conversion complete.\n- DONE = 0 ? conversion ongoing.\n- Result valid ONLY when DONE = 1.\n\n---\n**Source:** Hardware Deterministic Engine",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "HW-004",
+    "question": "Why must the ADC clock be limited to 4.5 MHz?",
+    "domain": "hardware",
+    "category": "timing_constraint",
+    "status": "success",
+    "latency_s": 2.1,
+    "answer_snippet": "### ? Hardware Insight: ADC Clock Constraint\nLPC2148 ADC requires clock **? 4.5 MHz**.\n- **Reason:** SAR logic needs settling time.\n- **Exceeding 4.5 MHz:** Comparator becomes unstable, leading to accuracy loss and random data.\n\n---\n**Source:** Hardware Deterministic Engine",
+    "scores": {
+      "correctness": 0.5,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "HW-005",
+    "question": "What happens if the ADC PDN bit is not set?",
+    "domain": "hardware",
+    "category": "edge_case",
+    "status": "success",
+    "latency_s": 2.15,
+    "answer_snippet": "### ? Hardware Insight: ADC Power-Down (PDN) bit\n**AD0CR** bit 21 is the **PDN** bit.\n- **PDN = 0:** ADC is in operational power-down mode.\n- **PDN = 1:** ADC is powered on.\n- If PDN is 0, setting START bits will be ignored.\n\n---\n**Source:** Hardware Deterministic Engine",
+    "scores": {
+      "correctness": 0.67,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "HW-006",
+    "question": "What happens if PWMMR1 > PWMMR0?",
+    "domain": "hardware",
+    "category": "edge_case",
+    "status": "success",
+    "latency_s": 2.21,
+    "answer_snippet": "### ? Hardware Insight: PWM Match Condition Error\nIf PWMMR1 > PWMMR0:\n- TC resets at MR0 before reaching MR1.\n- No match event occurs.\n- Result: Output stuck (invalid duty cycle).\n\n---\n**Source:** Hardware Deterministic Engine",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "HW-007",
+    "question": "Why does UART require DLAB to be cleared after setting baud rate?",
+    "domain": "hardware",
+    "category": "register_sequence",
+    "status": "success",
+    "latency_s": 2.28,
+    "answer_snippet": "### ? Hardware Insight: UART DLAB Behavior\n**DLAB** is Bit 7 of UxLCR.\n- **DLAB = 1:** Access Baud Rate Divisors (UxDLL/DLM).\n- **DLAB = 0:** Access UxTHR (TX) and UxRBR (RX).\n- If DLAB is not cleared after init, data transmission fails.\n\n---\n**Source:** Protocol Knowledge Base",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "HW-008",
+    "question": "What is the function of the PINSEL register in LPC2148?",
+    "domain": "hardware",
+    "category": "core_concept",
+    "status": "success",
+    "latency_s": 2.25,
+    "answer_snippet": "### ? Hardware Insight: PINSEL Register Function\nPINSEL registers control pin multiplexing. Pins default to GPIO. PINSEL setup is mandatory for peripherals.\n\n---\n**Source:** Hardware Deterministic Engine",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-001",
+    "question": "Configure ADC channel 0 on LPC2148.",
+    "domain": "infrastructure",
+    "category": "rag_gated_intent",
+    "status": "success",
+    "latency_s": 2.29,
+    "answer_snippet": "### ?? ADC Configuration\n\n**Verified C Implementation:**\n```c\n#include <lpc214x.h>\n\nvoid ADC_Init(void)\n{\n    /* Configure P0.28 as AD0.0 */\n    PINSEL1 = (PINSEL1 & ~(3 << 24)) | (1 << 24);\n\n    /* AD0CR: Channel 0, PDN=1 */\n    AD0CR = (1 << 0) | (13 << 8) | (1 << 21);\n}\n```\n\n**Register:** AD0CR ?",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-002",
+    "question": "Why must ADC clock be below 4.5 MHz?",
+    "domain": "infrastructure",
+    "category": "rag_bypass_intent",
+    "status": "success",
+    "latency_s": 2.27,
+    "answer_snippet": "### ? Hardware Insight: ADC Clock Constraint\nLPC2148 ADC requires clock **? 4.5 MHz**.\n- **Reason:** SAR logic needs settling time.\n- **Exceeding 4.5 MHz:** Comparator becomes unstable, leading to accuracy loss and random data.\n\n---\n**Source:** Hardware Deterministic Engine",
+    "scores": {
+      "correctness": 0.67,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-003",
+    "question": "Design an RTOS obstacle detection system.",
+    "domain": "infrastructure",
+    "category": "architecture_bypass_rag",
+    "status": "success",
+    "latency_s": 2.18,
+    "answer_snippet": "# System Architecture: Obstacle Detection System (FreeRTOS + LPC2148 + HC-SR04)\n\n**Objective:** Continuously measure distance using HC-SR04 ultrasonic sensor, classify proximity zones, and trigger actuation (buzzer/LED) in real time.\n\n## Hardware Components\n- LPC2148 ARM7 MCU\n- HC-SR04 Ultrasonic Se",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-004",
+    "question": "What is the difference between queues and semaphores in FreeRTOS?",
+    "domain": "infrastructure",
+    "category": "rtos_rag_bypass",
+    "status": "success",
+    "latency_s": 2.15,
+    "answer_snippet": "### ? FreeRTOS: Queue vs Semaphore\n**Why choose a Queue instead of a Semaphore?**\n1. **Data Transfer:** Queues transfer data payloads; semaphores are signaling only.\n2. **Ordering:** Queues maintain FIFO order.\n3. **Decoupling:** Queues act as a buffer.\n4. **Thread Safety:** Native protection for da",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-005",
+    "question": "Configure ADCSRA register on LPC2148.",
+    "domain": "infrastructure",
+    "category": "trap_with_rag_gate",
+    "status": "error",
+    "latency_s": 2.03,
+    "answer_snippet": "### \u274c Architecture Mismatch\nThe registers mentioned belong to the **AVR/Arduino** architecture. The LPC2148 is an **ARM7TDMI-S** microcontroller with a completely different register set.\nUse: AD0CR (ADC), UxLCR (UART), PWMMCR (PWM), PINSEL (pin mux).",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-006",
+    "question": "Use analogRead() to read ADC on LPC2148.",
+    "domain": "infrastructure",
+    "category": "trap_arduino_api",
+    "status": "error",
+    "latency_s": 2.06,
+    "answer_snippet": "### \u274c Invalid: Arduino API\nArduino abstraction functions (analogRead, digitalWrite, Serial.begin) do NOT exist on LPC2148.\nThe LPC2148 requires direct register-level programming: AD0CR, IO0DIR, UxTHR, etc.",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-007",
+    "question": "Initialize UART0 for 115200 baud on LPC2148.",
+    "domain": "infrastructure",
+    "category": "peripheral_deterministic_template",
+    "status": "success",
+    "latency_s": 2.24,
+    "answer_snippet": "### ?? UART Configuration\n\n**Verified C Implementation:**\n```c\n#include <lpc214x.h>\n\nvoid UART0_Init(void)\n{\n    /* Step 1: Configure pins for UART0 */\n    PINSEL0 &= ~(15 << 0);\n    PINSEL0 |=  (5 << 0);\n\n    /* Step 2: Enable DLAB */\n    U0LCR = 0x83; \n\n    /* Step 3: Set Baud Rate (115200)\n      ",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-008",
+    "question": "Configure PWM1 for 75% duty cycle on LPC2148.",
+    "domain": "infrastructure",
+    "category": "peripheral_deterministic_template",
+    "status": "success",
+    "latency_s": 2.33,
+    "answer_snippet": "### ?? PWM Configuration\n\n**Verified C Implementation:**\n```c\n#include <lpc214x.h>\n\nvoid PWM_Init(void)\n{\n    /* Step 1: Select PWM1 function on P0.0 */\n    PINSEL0 = (PINSEL0 & ~(3 << 0)) | (2 << 0);\n    PWMPR = 0;\n    PWMMR0 = 1000;\n    PWMMR1 = 750;\n    PWMMCR = (1 << 1);\n    PWMPCR = (1 << 9);\n ",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-009",
+    "question": "Explain MPU6050 calibration process.",
+    "domain": "infrastructure",
+    "category": "sensor_rag_bypass",
+    "status": "success",
+    "latency_s": 2.24,
+    "answer_snippet": "### ? Sensor Insight: MPU?6050 Calibration\nCalibration involves reading factory trim registers, computing offset values, and writing them to the OFFSET registers. Deterministic operation requires applying these offsets before using raw sensor data.\n\n---\n**Source:** Sensor Knowledge Base",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-010",
+    "question": "Can UART FIFO affect ADC conversion accuracy?",
+    "domain": "infrastructure",
+    "category": "cross_domain_trap",
+    "status": "error",
+    "latency_s": 2.03,
+    "answer_snippet": "### \u274c Invalid Hardware Query\nUART and ADC are independent subsystems. The UART DLAB bit does not affect ADC resolution.",
+    "scores": {
+      "correctness": 0.67,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "MAT-001",
+    "question": "How does the UART DLAB bit affect ADC resolution on LPC2148?",
+    "domain": "maturity",
+    "category": "semantic_contradiction_trap",
+    "status": "error",
+    "latency_s": 2.05,
+    "answer_snippet": "### \u274c Invalid Hardware Query\nUART and ADC are independent subsystems. The UART DLAB bit does not affect ADC resolution.",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "MAT-002",
+    "question": "Configure UART0 at 115200 baud and explain why interrupts are preferred over polling.",
+    "domain": "maturity",
+    "category": "multi_intent_orchestration",
+    "status": "success",
+    "latency_s": 2.23,
+    "answer_snippet": "### ? Systems Engineering: Interrupts vs Polling\n**Why is interrupt-driven UART preferred over polling?**\n1. **CPU Efficiency:** Avoids busy-waiting.\n2. **Responsiveness:** Immediate handling of data.\n3. **Concurrency:** Allows other tasks to run.\n\n### ?? UART Configuration\n\n**Verified C Implementat",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "MAT-003",
+    "question": "What are the causes of ADC noise on LPC2148 and how is it reduced?",
+    "domain": "maturity",
+    "category": "degraded_mode_execution",
+    "status": "success",
+    "latency_s": 2.22,
+    "answer_snippet": "### ? Hardware Insight: ADC Noise Behavior\nCauses: Supply fluctuations, digital switching, high input impedance.\nResult: Output jitter (?1?3 counts).\nFix: Decoupling, low impedance input, averaging.\n\n---\n**Source:** Hardware Deterministic Engine",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "MAT-004",
+    "question": "Explain priority inversion in FreeRTOS and how to prevent it.",
+    "domain": "maturity",
+    "category": "retrieval_disabled_execution",
+    "status": "success",
+    "latency_s": 2.22,
+    "answer_snippet": "### ? FreeRTOS Insight: Task Priorities\nFreeRTOS uses a preemptive scheduler where a higher priority number denotes a higher priority task.\n\n**Priority Inversion:**\n- Occurs when a high-priority task is blocked waiting for a shared resource (protected by a binary semaphore) held by a low-priority ta",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "MAT-005",
+    "question": "Generate FreeRTOS architecture for autonomous robot.",
+    "domain": "maturity",
+    "category": "architecture_synthesis_consistency",
+    "status": "success",
+    "latency_s": 2.2,
+    "answer_snippet": "# System Architecture: FreeRTOS Autonomous Robot (Obstacle Avoidance)\n\n**Objective:** Navigate autonomously using HC-SR04 obstacle detection, PWM motor control, and a FreeRTOS task pipeline.\n\n## Hardware Components\n- LPC2148\n- HC-SR04\n- DC Motors (L298N driver)\n- PWM outputs\n\n## Protocols / Interfac",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "MAT-006",
+    "question": "How do you safely send data from an ISR to a FreeRTOS task?",
+    "domain": "maturity",
+    "category": "isr_reasoning",
+    "status": "success",
+    "latency_s": 2.26,
+    "answer_snippet": "### ? FreeRTOS Insight: ISR-Safe API Reference\nOnly the `FromISR` variants of FreeRTOS functions may be called inside an ISR:\n\n| Forbidden in ISR          | ISR-Safe Replacement               |\n|---------------------------|-------------------------------------|\n| xQueueSend               | xQueueSen",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "MAT-007",
+    "question": "What happens when a queue overflows in FreeRTOS and how do we prevent it?",
+    "domain": "maturity",
+    "category": "queue_overflow_behavior",
+    "status": "success",
+    "latency_s": 2.21,
+    "answer_snippet": "### ? FreeRTOS Insight: Queue Overflow Behavior\n- **Definition:** Occurs when producer sends to a full queue without a wait timeout.\n- **Result:** `xQueueSend` returns `errQUEUE_FULL` (pdFAIL).\n- **Detection:** Always check return value of `xQueueSend` / `xQueueSendFromISR`.\n- **Prevention strategie",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "MAT-008",
+    "question": "What is the role of the scheduler tick in FreeRTOS and how does configTICK_RATE_HZ affect it?",
+    "domain": "maturity",
+    "category": "scheduler_tick_reasoning",
+    "status": "success",
+    "latency_s": 2.18,
+    "answer_snippet": "### ? FreeRTOS Insight: Scheduler Tick\n- **Definition:** Periodic timer interrupt that drives the RTOS scheduler.\n- **Configured by:** `configTICK_RATE_HZ` in FreeRTOSConfig.h (typically 1000 Hz = 1ms tick).\n- **Role:** Decrements task delay counters, unblocks delayed tasks, triggers preemption.\n- *",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "MAT-009",
+    "question": "What are the benefits of using DMA for ADC streaming instead of CPU polling?",
+    "domain": "maturity",
+    "category": "dma_reasoning",
+    "status": "success",
+    "latency_s": 2.31,
+    "answer_snippet": "### ? Hardware Insight: DMA (Direct Memory Access)\n- **Purpose:** Transfers data between memory and peripheral without CPU involvement.\n- **LPC2148 DMA:** GPDMA controller supports memory-to-peripheral, peripheral-to-memory, and memory-to-memory.\n- **When to use:** High-throughput ADC streaming, UAR",
+    "scores": {
+      "correctness": 0.75,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-001",
+    "question": "Configure ADC channel 0 on LPC2148.",
+    "domain": "performance",
+    "category": "warm_start_peripheral",
+    "status": "success",
+    "latency_s": 2.23,
+    "answer_snippet": "### ?? ADC Configuration\n\n**Verified C Implementation:**\n```c\n#include <lpc214x.h>\n\nvoid ADC_Init(void)\n{\n    /* Configure P0.28 as AD0.0 */\n    PINSEL1 = (PINSEL1 & ~(3 << 24)) | (1 << 24);\n\n    /* AD0CR: Channel 0, PDN=1 */\n    AD0CR = (1 << 0) | (13 << 8) | (1 << 21);\n}\n```\n\n**Register:** AD0CR ?",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-002",
+    "question": "Design an RTOS obstacle detection system.",
+    "domain": "performance",
+    "category": "warm_start_architecture",
+    "status": "success",
+    "latency_s": 2.11,
+    "answer_snippet": "# System Architecture: Obstacle Detection System (FreeRTOS + LPC2148 + HC-SR04)\n\n**Objective:** Continuously measure distance using HC-SR04 ultrasonic sensor, classify proximity zones, and trigger actuation (buzzer/LED) in real time.\n\n## Hardware Components\n- LPC2148 ARM7 MCU\n- HC-SR04 Ultrasonic Se",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-003",
+    "question": "Build sensor fusion architecture using MPU6050 and GPS.",
+    "domain": "performance",
+    "category": "multi_domain_synthesis",
+    "status": "success",
+    "latency_s": 2.16,
+    "answer_snippet": "# System Architecture: Sensor Fusion: GPS + MPU6050 Inertial Navigation\n\n**Objective:** Fuse IMU (accelerometer + gyroscope) with GPS to produce a continuously updated position and heading estimate, transmitted via GSM.\n\n## Hardware Components\n- LPC2148\n- MPU6050 (I2C)\n- GPS Module (UART0)\n- GSM Mod",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-004",
+    "question": "Generate FreeRTOS architecture for autonomous robot.",
+    "domain": "performance",
+    "category": "warm_start_architecture",
+    "status": "success",
+    "latency_s": 2.2,
+    "answer_snippet": "# System Architecture: FreeRTOS Autonomous Robot (Obstacle Avoidance)\n\n**Objective:** Navigate autonomously using HC-SR04 obstacle detection, PWM motor control, and a FreeRTOS task pipeline.\n\n## Hardware Components\n- LPC2148\n- HC-SR04\n- DC Motors (L298N driver)\n- PWM outputs\n\n## Protocols / Interfac",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-005",
+    "question": "Design queue-based UART communication system.",
+    "domain": "performance",
+    "category": "isr_pipeline_synthesis",
+    "status": "success",
+    "latency_s": 2.22,
+    "answer_snippet": "# System Architecture: ISR-to-Task Pipeline: UART RX Interrupt-Driven\n\n**Objective:** Receive UART bytes via interrupt (zero CPU polling), accumulate into frames in a processing task via FreeRTOS queue.\n\n## Hardware Components\n- LPC2148\n- UART0\n- Any serial device (GPS/GSM/PC)\n\n## Protocols / Interf",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-006",
+    "question": "Why should ISRs remain short in RTOS systems?",
+    "domain": "performance",
+    "category": "degraded_mode_knowledge",
+    "status": "success",
+    "latency_s": 2.2,
+    "answer_snippet": "### ? Systems Engineering: Short ISRs\n**Why must ISRs remain short?**\n1. **Latency:** Long ISRs delay other pending interrupts.\n2. **Jitter:** Disrupts the timing of periodic tasks.\n3. **System Hang:** If an ISR takes longer than the interrupt period, the system will enter an infinite interrupt loop",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-007",
+    "question": "Configure ADCSRA register on LPC2148.",
+    "domain": "performance",
+    "category": "semantic_trap_rejection",
+    "status": "error",
+    "latency_s": 2.03,
+    "answer_snippet": "### \u274c Architecture Mismatch\nThe registers mentioned belong to the **AVR/Arduino** architecture. The LPC2148 is an **ARM7TDMI-S** microcontroller with a completely different register set.\nUse: AD0CR (ADC), UxLCR (UART), PWMMCR (PWM), PINSEL (pin mux).",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-008",
+    "question": "Can ADC baud rate affect PWM timing on LPC2148?",
+    "domain": "performance",
+    "category": "semantic_trap_rejection",
+    "status": "error",
+    "latency_s": 2.04,
+    "answer_snippet": "### \u274c Invalid Hardware Query\nADC does NOT use baud rate. It uses a sampling clock derived from PCLK via the **CLKDIV** bit in **AD0CR**.",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-009",
+    "question": "What registers does MPU6050 use for I2C communication?",
+    "domain": "performance",
+    "category": "knowledge_depth",
+    "status": "success",
+    "latency_s": 2.17,
+    "answer_snippet": "### ? Sensor Insight: MPU6050 Register Map (I2C)\n- **I2C Address:** 0x68 (AD0=LOW) or 0x69 (AD0=HIGH)\n- **PWR_MGMT_1 (0x6B):** Wake up device by writing 0x00 (clears SLEEP bit).\n- **ACCEL_XOUT_H (0x3B):** High byte of X-axis accelerometer (16-bit, 2's complement).\n- **GYRO_XOUT_H (0x43):** High byte",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-010",
+    "question": "How do I read temperature from LM35 using LPC2148 ADC?",
+    "domain": "performance",
+    "category": "knowledge_depth",
+    "status": "success",
+    "latency_s": 2.16,
+    "answer_snippet": "# System Architecture: Temperature Logger (FreeRTOS + LPC2148 + LM35)\n\n**Objective:** Sample LM35 temperature sensor at 2Hz via ADC, log readings over UART.\n\n## Hardware Components\n- LPC2148 ARM7 MCU\n- LM35 Temperature Sensor (AD0.1 / P0.28)\n- UART0 terminal\n\n## Protocols / Interfaces\n- ADC (polling",
+    "scores": {
+      "correctness": 0.5,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-011",
+    "question": "How do you safely send data from an ISR to a FreeRTOS task?",
+    "domain": "performance",
+    "category": "knowledge_depth",
+    "status": "success",
+    "latency_s": 2.21,
+    "answer_snippet": "### ? FreeRTOS Insight: ISR-Safe API Reference\nOnly the `FromISR` variants of FreeRTOS functions may be called inside an ISR:\n\n| Forbidden in ISR          | ISR-Safe Replacement               |\n|---------------------------|-------------------------------------|\n| xQueueSend               | xQueueSen",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PERF-012",
+    "question": "Explain priority inversion in RTOS.",
+    "domain": "performance",
+    "category": "rtos_reasoning",
+    "status": "success",
+    "latency_s": 2.24,
+    "answer_snippet": "### ? FreeRTOS Insight: Task Priorities\nFreeRTOS uses a preemptive scheduler where a higher priority number denotes a higher priority task.\n\n**Priority Inversion:**\n- Occurs when a high-priority task is blocked waiting for a shared resource (protected by a binary semaphore) held by a low-priority ta",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PROT-001",
+    "question": "Explain UART frame structure and DLAB configuration in LPC2148.",
+    "domain": "protocols",
+    "category": "uart_basics",
+    "status": "success",
+    "latency_s": 2.25,
+    "answer_snippet": "### ? Hardware Insight: UART DLAB Behavior\n**DLAB** is Bit 7 of UxLCR.\n- **DLAB = 1:** Access Baud Rate Divisors (UxDLL/DLM).\n- **DLAB = 0:** Access UxTHR (TX) and UxRBR (RX).\n- If DLAB is not cleared after init, data transmission fails.\n\n---\n**Source:** Protocol Knowledge Base",
+    "scores": {
+      "correctness": 0.6,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PROT-002",
+    "question": "What are the four SPI modes and how are they configured?",
+    "domain": "protocols",
+    "category": "spi_basics",
+    "status": "success",
+    "latency_s": 2.26,
+    "answer_snippet": "### ? Communication Insight: SPI\nFull-duplex, 4 wires. CPOL/CPHA modes. CS active LOW.\n\n### ?? SPI Configuration\n\n**Verified C Implementation:**\n```c\nPINSEL0 |= 0x5500;  /* SCK, MISO, MOSI */\nS0SPCCR = 8;        /* Clock divider */\nS0SPCR = 0x20;      /* Master mode */\n```\n\n**Rule:** S0SPCCR must be",
+    "scores": {
+      "correctness": 0.6,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PROT-003",
+    "question": "How does I2C bus arbitration work in multi-master mode?",
+    "domain": "protocols",
+    "category": "i2c_basics",
+    "status": "success",
+    "latency_s": 2.16,
+    "answer_snippet": "### ? Communication Insight: I2C\n2 wires (SDA/SCL). 7-bit addressing. Arbitration for multi-master.\n\n---\n**Source:** Protocol Knowledge Base",
+    "scores": {
+      "correctness": 0.8,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "RTOS-001",
+    "question": "How do you create a task in FreeRTOS?",
+    "domain": "rtos",
+    "category": "api_knowledge",
+    "status": "success",
+    "latency_s": 2.22,
+    "answer_snippet": "### ? FreeRTOS Insight: Task Creation\nTasks in FreeRTOS are created using `xTaskCreate()`.\n\n**API Signature and Parameters:**\n- `pvTaskCode`: Pointer to the task entry function (must be an infinite loop, never return).\n- `pcName`: A descriptive name for debugging.\n- `usStackDepth`: Stack size alloca",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "RTOS-002",
+    "question": "What is priority inversion in FreeRTOS and how is it prevented?",
+    "domain": "rtos",
+    "category": "scheduling_theory",
+    "status": "success",
+    "latency_s": 2.18,
+    "answer_snippet": "### ? FreeRTOS Insight: Task Priorities\nFreeRTOS uses a preemptive scheduler where a higher priority number denotes a higher priority task.\n\n**Priority Inversion:**\n- Occurs when a high-priority task is blocked waiting for a shared resource (protected by a binary semaphore) held by a low-priority ta",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "RTOS-003",
+    "question": "How do you safely send data from an ISR to a FreeRTOS task?",
+    "domain": "rtos",
+    "category": "isr_safety",
+    "status": "success",
+    "latency_s": 2.15,
+    "answer_snippet": "### ? FreeRTOS Insight: ISR-Safe API Reference\nOnly the `FromISR` variants of FreeRTOS functions may be called inside an ISR:\n\n| Forbidden in ISR          | ISR-Safe Replacement               |\n|---------------------------|-------------------------------------|\n| xQueueSend               | xQueueSen",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "RTOS-004",
+    "question": "What is the difference between a binary semaphore and a mutex in FreeRTOS?",
+    "domain": "rtos",
+    "category": "synchronization",
+    "status": "success",
+    "latency_s": 2.1,
+    "answer_snippet": "### ? FreeRTOS Insight: Semaphores\nBinary (Signaling), Counting (Resource), Mutex (Exclusion).\n\n---\n**Source:** FreeRTOS Deterministic Engine",
+    "scores": {
+      "correctness": 0.5,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "RTOS-005",
+    "question": "How does FreeRTOS queue work?",
+    "domain": "rtos",
+    "category": "ipc",
+    "status": "success",
+    "latency_s": 2.16,
+    "answer_snippet": "### ? FreeRTOS Insight: Queues\nFreeRTOS queues are the primary form of Inter-Process Communication (IPC). They are thread-safe FIFO (First-In, First-Out) buffers.\n\n**Key API Functions:**\n- `xQueueCreate`: Allocates queue memory (specifies depth and item size).\n- `xQueueSend`: Sends data to the back ",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "SENS-001",
+    "question": "How does the HC-SR04 ultrasonic sensor work and how do I interface it with LPC2148?",
+    "domain": "sensors",
+    "category": "sensor_interface",
+    "status": "success",
+    "latency_s": 2.21,
+    "answer_snippet": "### ? Sensor Insight: HC-SR04 Ultrasonic Sensor\nThe HC-SR04 measures distance using sonar:\n\n**Working Principle:**\n1. **Trigger:** Set the TRIG pin HIGH for at least 10 us to start the ultrasonic burst.\n2. **Echo:** The sensor emits 8 cycles at 40 kHz and sets the ECHO pin HIGH.\n3. **Measurement:** ",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "SENS-002",
+    "question": "How do I read temperature from LM35 using LPC2148 ADC?",
+    "domain": "sensors",
+    "category": "sensor_interface",
+    "status": "success",
+    "latency_s": 19.24,
+    "answer_snippet": "# System Architecture: Temperature Logger (FreeRTOS + LPC2148 + LM35)\n\n**Objective:** Sample LM35 temperature sensor at 2Hz via ADC, log readings over UART.\n\n## Hardware Components\n- LPC2148 ARM7 MCU\n- LM35 Temperature Sensor (AD0.1 / P0.28)\n- UART0 terminal\n\n## Protocols / Interfaces\n- ADC (polling",
+    "scores": {
+      "correctness": 0.6,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "SLOW"
+    },
+    "pass": true,
+    "issues": [
+      "Latency 19.2s exceeds 10.0s threshold"
+    ]
+  },
+  {
+    "id": "SENS-003",
+    "question": "What registers does MPU6050 use for I2C communication?",
+    "domain": "sensors",
+    "category": "sensor_registers",
+    "status": "success",
+    "latency_s": 3.64,
+    "answer_snippet": "### ? Sensor Insight: MPU6050 Register Map (I2C)\n- **I2C Address:** 0x68 (AD0=LOW) or 0x69 (AD0=HIGH)\n- **PWR_MGMT_1 (0x6B):** Wake up device by writing 0x00 (clears SLEEP bit).\n- **ACCEL_XOUT_H (0x3B):** High byte of X-axis accelerometer (16-bit, 2's complement).\n- **GYRO_XOUT_H (0x43):** High byte",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "SENS-004",
+    "question": "Can MPU6050 be directly connected to 5V supply?",
+    "domain": "sensors",
+    "category": "voltage_safety",
+    "status": "error",
+    "latency_s": 2.02,
+    "answer_snippet": "### \u26a0\ufe0f Hardware Warning\nMPU6050 is a 3.3V device. Directly connecting to 5V will damage it. A level shifter is required.",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "TRAP-001",
+    "question": "Why is baud rate important in ADC configuration?",
+    "domain": "traps",
+    "category": "cross_domain_trap",
+    "status": "error",
+    "latency_s": 2.04,
+    "answer_snippet": "### \u274c Invalid Hardware Query\nADC does NOT use baud rate. It uses a sampling clock derived from PCLK via the **CLKDIV** bit in **AD0CR**.",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "TRAP-002",
+    "question": "How does PWM duty cycle affect ADC sampling?",
+    "domain": "traps",
+    "category": "cross_domain_trap",
+    "status": "error",
+    "latency_s": 2.05,
+    "answer_snippet": "Invalid: PWM does not control ADC sampling. These are independent peripherals.",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "TRAP-003",
+    "question": "Can UART FIFO affect ADC conversion accuracy?",
+    "domain": "traps",
+    "category": "cross_domain_trap",
+    "status": "error",
+    "latency_s": 2.04,
+    "answer_snippet": "### \u274c Invalid Hardware Query\nUART and ADC are independent subsystems. The UART DLAB bit does not affect ADC resolution.",
+    "scores": {
+      "correctness": 0.67,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "TRAP-004",
+    "question": "Configure ADCSRA register for ADC in LPC2148",
+    "domain": "traps",
+    "category": "wrong_architecture_trap",
+    "status": "error",
+    "latency_s": 2.04,
+    "answer_snippet": "### \u274c Architecture Mismatch\nThe registers mentioned belong to the **AVR/Arduino** architecture. The LPC2148 is an **ARM7TDMI-S** microcontroller with a completely different register set.\nUse: AD0CR (ADC), UxLCR (UART), PWMMCR (PWM), PINSEL (pin mux).",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "TRAP-005",
+    "question": "Use analogRead() to configure ADC on LPC2148",
+    "domain": "traps",
+    "category": "wrong_architecture_trap",
+    "status": "error",
+    "latency_s": 2.04,
+    "answer_snippet": "### \u274c Invalid: Arduino API\nArduino abstraction functions (analogRead, digitalWrite, Serial.begin) do NOT exist on LPC2148.\nThe LPC2148 requires direct register-level programming: AD0CR, IO0DIR, UxTHR, etc.",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  }
+]

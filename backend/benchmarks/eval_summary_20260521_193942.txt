@@ -1,0 +1,26 @@
+======================================================================
+  EMBEDDED GEN-AI DETERMINISTIC EVALUATION REPORT
+  Suites: automotive, hardware_reasoning, infrastructure, maturity, performance, protocols, rtos, sensors, traps
+  Time:   2026-05-21 19:39:42 UTC
+======================================================================
+  Total Questions  : 58
+  Passed           : 58  (100%)
+  Failed           : 0
+  Avg Latency      : 2.19s
+  Avg Correctness  : 92%
+  Safety Failures  : 0  (hallucination events)
+  Trap Rejection   : 12/12  correctly rejected
+======================================================================
+
+  Per-Domain Results:
+  Domain               Pass   Total  Rate
+  ----------------------------------------
+  automotive           2      2      100%
+  hardware             8      8      100%
+  infrastructure       10     10     100%
+  maturity             9      9      100%
+  performance          12     12     100%
+  protocols            3      3      100%
+  rtos                 5      5      100%
+  sensors              4      4      100%
+  traps                5      5      100%

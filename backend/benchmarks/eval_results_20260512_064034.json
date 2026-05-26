@@ -1,0 +1,91 @@
+[
+  {
+    "id": "PROT-001",
+    "question": "Explain UART frame structure and DLAB configuration in LPC2148.",
+    "domain": "protocols",
+    "category": "uart_basics",
+    "status": "success",
+    "latency_s": 2.21,
+    "answer_snippet": "### ? Communication Insight: UART Frame Structure\n**UART Frame (8N1 = most common):**\n```\n[START][D0][D1][D2][D3][D4][D5][D6][D7][STOP]\n  1 bit  ????? 8 data bits ?????  1 bit\n```\n- Start bit: always LOW.\n- Stop bit: always HIGH.\n- No synchronization clock ? both ends must use identical baud rate.\n-",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PROT-002",
+    "question": "What are the four SPI modes and how are they configured?",
+    "domain": "protocols",
+    "category": "spi_basics",
+    "status": "success",
+    "latency_s": 2.16,
+    "answer_snippet": "### ?? Query Unclear\nSpecify peripheral: ADC / UART / PWM / GPIO / SPI / I2C.",
+    "scores": {
+      "correctness": 0.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": false,
+    "issues": [
+      "Low keyword coverage: []/['CPOL', 'CPHA', 'clock polarity', 'clock phase', 'S0SPCR']"
+    ]
+  },
+  {
+    "id": "PROT-003",
+    "question": "How does I2C bus arbitration work in multi-master mode?",
+    "domain": "protocols",
+    "category": "i2c_basics",
+    "status": "success",
+    "latency_s": 2.13,
+    "answer_snippet": "### ? Communication Insight: CAN Bus\n**CAN Frame (Standard 11-bit ID):**\n```\n[SOF][11-bit ID][RTR][IDE][r0][DLC 4-bit][DATA 0-8 bytes][CRC 15-bit][ACK][EOF]\n```\n**Key Properties:**\n- Multi-master, differential signaling (CAN_H / CAN_L).\n- Arbitration: lowest ID wins (highest priority).\n- Max speed: ",
+    "scores": {
+      "correctness": 0.4,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": false,
+    "issues": [
+      "Low keyword coverage: ['arbitration', 'master']/['arbitration', 'SDA', 'SCL', 'master', 'lost']"
+    ]
+  },
+  {
+    "id": "AUTO-001",
+    "question": "What are the three layers of an ADAS software architecture?",
+    "domain": "automotive",
+    "category": "architecture",
+    "status": "success",
+    "latency_s": 2.13,
+    "answer_snippet": "### ? Automotive Insight: ADAS Architecture\n**ADAS Three-Layer Model:**\n```\nLayer 1: ACQUISITION   ? Sensors (Radar, Lidar, Camera, Ultrasonic)\nLayer 2: PROCESSING    ? Sensor Fusion ? Decision Logic ? Safety Check\nLayer 3: ACTUATION     ? Braking, Steering, Throttle, Alert\n```\n**Safety Rule:** Actu",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "AUTO-002",
+    "question": "Explain the CAN bus frame structure and identifier types.",
+    "domain": "automotive",
+    "category": "can_bus",
+    "status": "success",
+    "latency_s": 2.12,
+    "answer_snippet": "### ? Communication Insight: CAN Bus\n**CAN Frame (Standard 11-bit ID):**\n```\n[SOF][11-bit ID][RTR][IDE][r0][DLC 4-bit][DATA 0-8 bytes][CRC 15-bit][ACK][EOF]\n```\n**Key Properties:**\n- Multi-master, differential signaling (CAN_H / CAN_L).\n- Arbitration: lowest ID wins (highest priority).\n- Max speed: ",
+    "scores": {
+      "correctness": 0.8,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  }
+]

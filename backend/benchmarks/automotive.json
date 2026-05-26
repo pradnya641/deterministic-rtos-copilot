@@ -1,0 +1,20 @@
+[
+  {
+    "id": "AUTO-001",
+    "question": "What are the three layers of an ADAS software architecture?",
+    "domain": "automotive",
+    "expected_keywords": ["acquisition", "processing", "actuation"],
+    "expected_intent": "automotive_logic",
+    "must_not_contain": [],
+    "category": "architecture"
+  },
+  {
+    "id": "AUTO-002",
+    "question": "Explain the CAN bus frame structure and identifier types.",
+    "domain": "automotive",
+    "expected_keywords": ["11-bit", "29-bit", "SOF", "CRC", "ACK"],
+    "expected_intent": "automotive_logic",
+    "must_not_contain": ["MISO", "MOSI", "baud rate register"],
+    "category": "can_bus"
+  }
+]

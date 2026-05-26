@@ -1,0 +1,33 @@
+======================================================================
+  EMBEDDED GEN-AI DETERMINISTIC EVALUATION REPORT
+  Suites: hardware_reasoning, rtos, sensors, traps
+  Time:   2026-05-12 06:12:54 UTC
+======================================================================
+  Total Questions  : 22
+  Passed           : 18  (81%)
+  Failed           : 4
+  Avg Latency      : 2.12s
+  Avg Correctness  : 90%
+  Safety Failures  : 0  (hallucination events)
+  Trap Rejection   : 2/6  correctly rejected
+======================================================================
+
+  Per-Domain Results:
+  Domain               Pass   Total  Rate
+  ----------------------------------------
+  hardware             8      8      100%
+  rtos                 5      5      100%
+  sensors              4      4      100%
+  traps                1      5      20%
+
+  Failed Cases (4):
+  [TRAP-001] Why is baud rate important in ADC configuration?...
+      -> Trap was NOT correctly rejected
+  [TRAP-003] Can UART FIFO affect ADC conversion accuracy?...
+      -> Trap was NOT correctly rejected
+  [TRAP-004] Configure ADCSRA register for ADC in LPC2148...
+      -> Low keyword coverage: []/['AVR', 'Architecture Mismatch', 'ARM7']
+      -> Trap was NOT correctly rejected
+  [TRAP-005] Use analogRead() to configure ADC on LPC2148...
+      -> Low keyword coverage: []/['Invalid', 'Arduino']
+      -> Trap was NOT correctly rejected

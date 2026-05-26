@@ -1,0 +1,1 @@
+/* Empty uart.h stub */

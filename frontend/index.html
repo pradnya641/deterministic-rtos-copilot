@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LPC2148 Conversational Firmware Copilot | Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Highlight.js for code highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <div class="logo-text">
+                    <h1>Deterministic Copilot</h1>
+                    <span>LPC2148 FreeRTOS Edition</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="reset-btn" class="secondary-btn">Reset Session</button>
+                <div class="status-badge" id="backend-status">
+                    <span class="dot"></span> Online
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- LEFT PANEL: Conversation and Chat Area -->
+            <section class="left-panel">
+                <div class="chat-wrapper">
+                    <div id="welcome-screen" class="welcome-screen">
+                        <div class="welcome-content">
+                            <h2>Deterministic Embedded Firmware Copilot</h2>
+                            <p>An interactive, stateful embedded systems engineering workstation. Design, modify, and optimize target configurations safely.</p>
+                            <div class="features-grid">
+                                <div class="feature-item">
+                                    <div class="f-icon">🔒</div>
+                                    <h3>FreeRTOS Safe</h3>
+                                    <p>Strict API constraints and peripheral checks enforced deterministically.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="f-icon">📝</div>
+                                    <h3>Stateful History</h3>
+                                    <p>Evolve firmware incrementally with inline code diff patches and feedback.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="f-icon">🛠️</div>
+                                    <h3>Verified Output</h3>
+                                    <p>All updates checked by syntax validators to ensure compile correctness.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="messages-container" class="messages-container hidden">
+                        <!-- Messages dynamically populated here -->
+                    </div>
+
+                    <div class="chat-input-area">
+                        <div class="status-indicator-container">
+                            <span id="status-indicator" class="status-indicator hidden"></span>
+                        </div>
+                        <div class="search-box">
+                            <input type="text" id="query-input" placeholder="Ask to generate or modify your firmware..." autocomplete="off">
+                            <button id="submit-btn">
+                                <span class="btn-text">Send</span>
+                                <span class="loader hidden"></span>
+                            </button>
+                        </div>
+                        <div class="quick-tags">
+                            <span class="tag" data-query="Generate UART ISR pipeline">UART ISR</span>
+                            <span class="tag" data-query="Generate ADC acquisition and filtering pipeline">ADC Pipeline</span>
+                            <span class="tag" data-query="generate GPS GSM telemetry architecture">GPS GSM</span>
+                            <span class="tag" data-query="generate CAN bus telemetry architecture">CAN Telemetry</span>
+                            <span class="tag" data-query="generate SPI Sensor Pipeline">SPI Sensor</span>
+                        </div>
+                        <div class="modification-chips hidden" id="modification-chips-row">
+                            <!-- Dynamic chips generated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: Architecture State and Dashboard -->
+            <section class="right-panel">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2>Architecture Dashboard</h2>
+                        <span class="system-name-badge" id="system-name">No active system</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="meta-stats">
+                            <div class="stat-box">
+                                <span class="label">Board</span>
+                                <span class="value" id="meta-board">LPC2148</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="label">OS</span>
+                                <span class="value" id="meta-os">FreeRTOS 8.x</span>
+                            </div>
+                        </div>
+
+                        <!-- System Status & Metrics -->
+                        <div class="dashboard-section status-section">
+                            <h3>System Diagnostics</h3>
+                            <div class="status-grid">
+                                <div class="status-box">
+                                    <span class="label">Validation Status</span>
+                                    <span class="value status-val" id="status-validation">N/A</span>
+                                </div>
+                                <div class="status-box">
+                                    <span class="label">Compile Status</span>
+                                    <span class="value status-val" id="status-compile">N/A</span>
+                                </div>
+                            </div>
+                            <div class="summary-box">
+                                <span class="label">Architecture Summary</span>
+                                <p class="summary-text" id="status-summary">Generate an architecture to see summary.</p>
+                            </div>
+                        </div>
+
+                        <!-- Active Tasks Section -->
+                        <div class="dashboard-section">
+                            <h3>Tasks & Scheduling</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Task Name</th>
+                                            <th>Function</th>
+                                            <th>Priority</th>
+                                            <th>Period</th>
+                                            <th>Stack</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tasks-table-body">
+                                        <tr>
+                                            <td colspan="5" class="empty-row">No active tasks</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Active Queues Section -->
+                        <div class="dashboard-section">
+                            <h3>Message Queues</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Queue Name</th>
+                                            <th>Depth</th>
+                                            <th>Item Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="queues-table-body">
+                                        <tr>
+                                            <td colspan="3" class="empty-row">No active queues</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Mutexes Section -->
+                        <div class="dashboard-section">
+                            <h3>Mutexes</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Mutex Name</th>
+                                            <th>Protected Resource</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="mutexes-table-body">
+                                        <tr>
+                                            <td colspan="2" class="empty-row">No active mutexes</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Binary Semaphores Section -->
+                        <div class="dashboard-section">
+                            <h3>Binary Semaphores</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Semaphore Name</th>
+                                            <th>Owner Task</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="binary-sems-table-body">
+                                        <tr>
+                                            <td colspan="2" class="empty-row">No active binary semaphores</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Counting Semaphores Section -->
+                        <div class="dashboard-section">
+                            <h3>Counting Semaphores</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Semaphore Name</th>
+                                            <th>Owner Task</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="counting-sems-table-body">
+                                        <tr>
+                                            <td colspan="2" class="empty-row">No active counting semaphores</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Peripherals Section -->
+                        <div class="dashboard-section">
+                            <h3>Peripheral Register Allocation</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Peripheral</th>
+                                            <th>Owner Task</th>
+                                            <th>PINSEL Reg</th>
+                                            <th>Pins / Bits</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="peripherals-table-body">
+                                        <tr>
+                                            <td colspan="4" class="empty-row">No active peripherals</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- VIC Interrupts Section -->
+                        <div class="dashboard-section">
+                            <h3>VIC Interrupt Vector Slots</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ISR Name</th>
+                                            <th>VIC Channel</th>
+                                            <th>Vectored Slot</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="interrupts-table-body">
+                                        <tr>
+                                            <td colspan="3" class="empty-row">No active interrupts</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

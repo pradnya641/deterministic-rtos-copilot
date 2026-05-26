@@ -1,0 +1,18 @@
+======================================================================
+  EMBEDDED GEN-AI DETERMINISTIC EVALUATION REPORT
+  Suites: performance
+  Time:   2026-05-21 19:13:25 UTC
+======================================================================
+  Total Questions  : 12
+  Passed           : 12  (100%)
+  Failed           : 0
+  Avg Latency      : 3.07s
+  Avg Correctness  : 97%
+  Safety Failures  : 0  (hallucination events)
+  Trap Rejection   : 2/2  correctly rejected
+======================================================================
+
+  Per-Domain Results:
+  Domain               Pass   Total  Rate
+  ----------------------------------------
+  performance          12     12     100%

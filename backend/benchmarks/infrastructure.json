@@ -1,0 +1,102 @@
+[
+  {
+    "id": "INFRA-001",
+    "question": "Configure ADC channel 0 on LPC2148.",
+    "domain": "infrastructure",
+    "category": "rag_gated_intent",
+    "expected_keywords": ["AD0CR", "PDN", "CLKDIV", "START"],
+    "must_be_rejected": false,
+    "must_not_contain": ["ADCSRA", "analogRead"],
+    "notes": "peripheral_configuration intent — RAG gated. Must respond from deterministic template even if FAISS is missing."
+  },
+  {
+    "id": "INFRA-002",
+    "question": "Why must ADC clock be below 4.5 MHz?",
+    "domain": "infrastructure",
+    "category": "rag_bypass_intent",
+    "expected_keywords": ["4.5 MHz", "SAR", "CLKDIV"],
+    "must_be_rejected": false,
+    "must_not_contain": ["ADCSRA"],
+    "notes": "hardware_reasoning intent — GOLD_INSIGHTS path only. Must NOT call FAISS (which would block). Must respond in <3s."
+  },
+  {
+    "id": "INFRA-003",
+    "question": "Design an RTOS obstacle detection system.",
+    "domain": "infrastructure",
+    "category": "architecture_bypass_rag",
+    "expected_keywords": ["task", "queue", "priority", "acquisition"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "system_architecture intent — blueprint generator path. RAG must NOT be called. Must respond in <3s."
+  },
+  {
+    "id": "INFRA-004",
+    "question": "What is the difference between queues and semaphores in FreeRTOS?",
+    "domain": "infrastructure",
+    "category": "rtos_rag_bypass",
+    "expected_keywords": ["queue", "semaphore", "data", "signal"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "rtos_architecture intent — NOT in RAG_ENABLED_INTENTS. Must bypass FAISS and serve from GOLD_INSIGHTS."
+  },
+  {
+    "id": "INFRA-005",
+    "question": "Configure ADCSRA register on LPC2148.",
+    "domain": "infrastructure",
+    "category": "trap_with_rag_gate",
+    "expected_keywords": ["AVR", "Architecture Mismatch", "ARM7"],
+    "must_be_rejected": true,
+    "must_not_contain": ["ADCSRA = ", "ADMUX"],
+    "notes": "AVR trap — must be rejected by validator BEFORE any RAG call. Tests that trap rejection is upstream of retrieval."
+  },
+  {
+    "id": "INFRA-006",
+    "question": "Use analogRead() to read ADC on LPC2148.",
+    "domain": "infrastructure",
+    "category": "trap_arduino_api",
+    "expected_keywords": ["Invalid", "Arduino"],
+    "must_be_rejected": true,
+    "must_not_contain": ["analogRead(", "setup(", "loop("],
+    "notes": "Arduino API trap — must be rejected deterministically without retrieval."
+  },
+  {
+    "id": "INFRA-007",
+    "question": "Initialize UART0 for 115200 baud on LPC2148.",
+    "domain": "infrastructure",
+    "category": "peripheral_deterministic_template",
+    "expected_keywords": ["DLAB", "U0DLL", "UxLCR"],
+    "must_be_rejected": false,
+    "must_not_contain": ["Serial.begin", "UBRR"],
+    "notes": "peripheral_configuration — UART template path. Degraded-mode test: must respond correctly even if FAISS is down."
+  },
+  {
+    "id": "INFRA-008",
+    "question": "Configure PWM1 for 75% duty cycle on LPC2148.",
+    "domain": "infrastructure",
+    "category": "peripheral_deterministic_template",
+    "expected_keywords": ["PWMMR0", "PWMMR1", "PWMPCR"],
+    "must_be_rejected": false,
+    "must_not_contain": ["analogWrite", "OCR1A"],
+    "notes": "peripheral_configuration — PWM template path. Tests that RAG fallback to '' does not break code generation."
+  },
+  {
+    "id": "INFRA-009",
+    "question": "Explain MPU6050 calibration process.",
+    "domain": "infrastructure",
+    "category": "sensor_rag_bypass",
+    "expected_keywords": ["calibration", "offset", "register"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "sensor_integration — NOT in RAG_ENABLED_INTENTS. Tests that sensor knowledge served from GOLD_INSIGHTS without FAISS."
+  },
+  {
+    "id": "INFRA-010",
+    "question": "Can UART FIFO affect ADC conversion accuracy?",
+    "domain": "infrastructure",
+    "category": "cross_domain_trap",
+    "expected_keywords": ["Invalid", "isolated", "independent"],
+    "must_be_rejected": true,
+    "must_not_contain": [],
+    "notes": "Cross-domain trap — UART and ADC are independent subsystems. Tests semantic rejection without FAISS."
+  }
+]

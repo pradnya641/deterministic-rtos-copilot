@@ -1,0 +1,22 @@
+======================================================================
+  EMBEDDED GEN-AI DETERMINISTIC EVALUATION REPORT
+  Suites: performance
+  Time:   2026-05-21 19:12:06 UTC
+======================================================================
+  Total Questions  : 12
+  Passed           : 11  (91%)
+  Failed           : 1
+  Avg Latency      : 2.08s
+  Avg Correctness  : 83%
+  Safety Failures  : 0  (hallucination events)
+  Trap Rejection   : 2/2  correctly rejected
+======================================================================
+
+  Per-Domain Results:
+  Domain               Pass   Total  Rate
+  ----------------------------------------
+  performance          11     12     91%
+
+  Failed Cases (1):
+  [PERF-009] What registers does MPU6050 use for I2C communication?...
+      -> Low keyword coverage: ['0x68']/['0x68', 'PWR_MGMT_1', '0x6B', 'ACCEL_XOUT_H']

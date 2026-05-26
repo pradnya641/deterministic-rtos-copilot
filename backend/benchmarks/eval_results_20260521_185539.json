@@ -1,0 +1,174 @@
+[
+  {
+    "id": "INFRA-001",
+    "question": "Configure ADC channel 0 on LPC2148.",
+    "domain": "infrastructure",
+    "category": "rag_gated_intent",
+    "status": "success",
+    "latency_s": 21.4,
+    "answer_snippet": "### ?? ADC Configuration\n\n**Verified C Implementation:**\n```c\n#include <lpc214x.h>\n\nvoid ADC_Init(void)\n{\n    /* Configure P0.28 as AD0.0 */\n    PINSEL1 = (PINSEL1 & ~(3 << 24)) | (1 << 24);\n\n    /* AD0CR: Channel 0, PDN=1 */\n    AD0CR = (1 << 0) | (13 << 8) | (1 << 21);\n}\n```\n\n**Register:** AD0CR ?",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "SLOW"
+    },
+    "pass": true,
+    "issues": [
+      "Latency 21.4s exceeds 10.0s threshold"
+    ]
+  },
+  {
+    "id": "INFRA-002",
+    "question": "Why must ADC clock be below 4.5 MHz?",
+    "domain": "infrastructure",
+    "category": "rag_bypass_intent",
+    "status": "success",
+    "latency_s": 2.05,
+    "answer_snippet": "### ? Hardware Insight: ADC Clock Constraint\nLPC2148 ADC requires clock **? 4.5 MHz**.\n- **Reason:** SAR logic needs settling time.\n- **Exceeding 4.5 MHz:** Comparator becomes unstable, leading to accuracy loss and random data.\n\n---\n**Source:** Hardware Deterministic Engine",
+    "scores": {
+      "correctness": 0.67,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-003",
+    "question": "Design an RTOS obstacle detection system.",
+    "domain": "infrastructure",
+    "category": "architecture_bypass_rag",
+    "status": "success",
+    "latency_s": 2.05,
+    "answer_snippet": "# System Architecture: Obstacle Detection System (FreeRTOS + LPC2148 + HC-SR04)\n\n**Objective:** Continuously measure distance using HC-SR04 ultrasonic sensor, classify proximity zones, and trigger actuation (buzzer/LED) in real time.\n\n## Hardware Components\n- LPC2148 ARM7 MCU\n- HC-SR04 Ultrasonic Se",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-004",
+    "question": "What is the difference between queues and semaphores in FreeRTOS?",
+    "domain": "infrastructure",
+    "category": "rtos_rag_bypass",
+    "status": "success",
+    "latency_s": 2.06,
+    "answer_snippet": "### ? FreeRTOS: Queue vs Semaphore\n**Why choose a Queue instead of a Semaphore?**\n1. **Data Transfer:** Queues transfer data payloads; semaphores are signaling only.\n2. **Ordering:** Queues maintain FIFO order.\n3. **Decoupling:** Queues act as a buffer.\n4. **Thread Safety:** Native protection for da",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-005",
+    "question": "Configure ADCSRA register on LPC2148.",
+    "domain": "infrastructure",
+    "category": "trap_with_rag_gate",
+    "status": "success",
+    "latency_s": 2.02,
+    "answer_snippet": "### ? Architecture Mismatch\nThe registers mentioned belong to the **AVR/Arduino** architecture. The LPC2148 is an **ARM7TDMI-S** microcontroller with a completely different register set.\nUse: AD0CR (ADC), UxLCR (UART), PWMMCR (PWM), PINSEL (pin mux).",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-006",
+    "question": "Use analogRead() to read ADC on LPC2148.",
+    "domain": "infrastructure",
+    "category": "trap_arduino_api",
+    "status": "success",
+    "latency_s": 2.04,
+    "answer_snippet": "### ? Invalid: Arduino API\nArduino abstraction functions (analogRead, digitalWrite, Serial.begin) do NOT exist on LPC2148.\nThe LPC2148 requires direct register-level programming: AD0CR, IO0DIR, UxTHR, etc.",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-007",
+    "question": "Initialize UART0 for 115200 baud on LPC2148.",
+    "domain": "infrastructure",
+    "category": "peripheral_deterministic_template",
+    "status": "success",
+    "latency_s": 2.17,
+    "answer_snippet": "### ?? UART Configuration\n\n**Verified C Implementation:**\n```c\n#include <lpc214x.h>\n\nvoid UART0_Init(void)\n{\n    /* Step 1: Configure pins for UART0 */\n    PINSEL0 &= ~(15 << 0);\n    PINSEL0 |=  (5 << 0);\n\n    /* Step 2: Enable DLAB */\n    U0LCR = 0x83; \n\n    /* Step 3: Set Baud Rate (115200)\n      ",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-008",
+    "question": "Configure PWM1 for 75% duty cycle on LPC2148.",
+    "domain": "infrastructure",
+    "category": "peripheral_deterministic_template",
+    "status": "success",
+    "latency_s": 2.25,
+    "answer_snippet": "### ?? PWM Configuration\n\n**Verified C Implementation:**\n```c\n#include <lpc214x.h>\n\nvoid PWM_Init(void)\n{\n    /* Step 1: Select PWM1 function on P0.0 */\n    PINSEL0 = (PINSEL0 & ~(3 << 0)) | (2 << 0);\n    PWMPR = 0;\n    PWMMR0 = 1000;\n    PWMMR1 = 750;\n    PWMMCR = (1 << 1);\n    PWMPCR = (1 << 9);\n ",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-009",
+    "question": "Explain MPU6050 calibration process.",
+    "domain": "infrastructure",
+    "category": "sensor_rag_bypass",
+    "status": "success",
+    "latency_s": 2.04,
+    "answer_snippet": "### ? Sensor Insight: MPU?6050 Calibration\nCalibration involves reading factory trim registers, computing offset values, and writing them to the OFFSET registers. Deterministic operation requires applying these offsets before using raw sensor data.\n\n---\n**Source:** Sensor Knowledge Base",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "INFRA-010",
+    "question": "Can UART FIFO affect ADC conversion accuracy?",
+    "domain": "infrastructure",
+    "category": "cross_domain_trap",
+    "status": "success",
+    "latency_s": 2.06,
+    "answer_snippet": "### ? Invalid Hardware Query\nUART FIFO and UART peripherals are completely isolated from the ADC peripheral. UART is a digital communication bus and cannot affect analog conversion accuracy.",
+    "scores": {
+      "correctness": 0.67,
+      "rejection": 1.0,
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  }
+]

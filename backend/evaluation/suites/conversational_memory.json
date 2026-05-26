@@ -1,0 +1,15 @@
+[
+  {
+    "name": "memory_continuation",
+    "description": "Verifies state continuity over a deep multi-turn conversation, performing complex removals and additions.",
+    "turns": [
+      "Generate UART ISR architecture",
+      "increase queue depth to 64",
+      "add queue overflow protection",
+      "optimize latency",
+      "add watchdog",
+      "remove UART",
+      "add SPI"
+    ]
+  }
+]

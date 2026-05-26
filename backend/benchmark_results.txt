@@ -1,0 +1,3461 @@
+# Hardware RAG Assistant Benchmark Results
+Generated on: Mon May  4 11:09:14 2026
+
+## LEVEL 1: Basic Functionality
+============================
+
+### Query: Explain CLKDIV calculation for ADC
+**Status:** success
+**Time:** 48.34s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'explain clkdiv calculation for adc'.**
+
+### 📋 Key Registers Extracted:
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+
+**Summary of Context:**
+The DONE and OVERRUN flags appearing in the ADDRn register for each A/D channel 
+are mirrored in ADSTAT. The interrupt flag (the logical OR of all DONE flags) is also found 
+in ADSTAT.
+
+Bit Symbol Value Description Reset 
+value
+15:0 - Reserved, user software should not write ones to reserved bits. The value read from a 
+reserved bit is not defined.
+NA
+16 BURST 1 The AD converters do repeated conversions at the rate selected by their CLKS fields, 
+scanning (if necessary) through the pins selected...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+The DONE and OVERRUN flags appearing in the ADDRn register for each A/D channel 
+are mirrored in ADSTAT. The interrupt flag (the logical OR of all DONE flags) is also found 
+in ADSTAT.
+
+Bit Symbol Value Description Reset 
+value
+15:0 - Reserved, user software should not write ones to reserved bits. T...
+
+----------------------------------------
+
+
+## LEVEL 3: Edge Cases
+===================
+
+### Query: Configure ADC on channel AD0.2 (P0.29)
+**Status:** success
+**Time:** 47.19s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure adc on channel ad0.2 (p0.29)'.**
+
+### 📋 Key Registers Extracted:
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+
+**Summary of Context:**
+AD0DR6
+0xE006 0028
+ADDR7 A/D Channel 7 Data Register. This register contains the 
+result of the most recent conversion completed on 
+channel 7.
+RO NA 0xE003 402C
+AD0DR7
+0xE006 002C
+
+19.4.1 A/D Control Register  (AD0CR - 0xE003 4000 and AD1CR - 
+0xE006 0000)
+ 
+
+Bit Symbol Value Description Reset 
+value
+7:0 SEL Selects which of the AD0. 7:0/AD1.7:0 pins is (are) to be sampled and converted. For 
+AD0, bit 0 selects Pin AD0.0, and bit 7 selects pin AD0.7. In software-controlled mode, 
+only one of th...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+AD0DR6
+0xE006 0028
+ADDR7 A/D Channel 7 Data Register. This register contains the 
+result of the most recent conversion completed on 
+channel 7.
+RO NA 0xE003 402C
+AD0DR7
+0xE006 002C
+
+19.4.1 A/D Control Register  (AD0CR - 0xE003 4000 and AD1CR - 
+0xE006 0000)
+ 
+
+Bit Symbol Value Description Reset 
+val...
+
+----------------------------------------
+
+### Query: What happens if PWMMR0 = 0?
+**Status:** success
+**Time:** 47.22s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what happens if pwmmr0 = 0?'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control of the relationship of the 
+resolution of the timer versus the maximum time before the timer overflows. The PWM 
+Prescale Counter is incremented on every PCLK. When it reaches the value stored in the...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void PWM_Init(void)
+{
+    /* Step 1: Select PWM1 function on P0.0 */
+    PINSEL0 = (PINSEL0 & ~(0x3 << 0)) | (0x2 << 0);
+    PWMPR = 0;
+    PWMMR0 = 1000;
+    PWMMR1 = 500;
+    PWMMCR = (1 << 1);
+    PWMPCR = (1 << 9);
+    PWMLER = (1 << 0) | (1 << 1);
+    PWMTCR = (1 << 0) | (1 << 3);
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | Pin function select (bits 1:0 = PWM1)| `(0x2 << 0)`    |
+| PWMPR    | 0xE001400C  | Prescaler - PCLK divider             | `0` (div 1)     |
+| PWMMR0   | 0xE0014018  | Period - TC resets here              | `1000` ticks    |
+| PWMMR1   | 0xE001401C  | Duty cycle - PWM1 clears here        | `500` (50%)     |
+| PWMMCR   | 0xE0014014  | Match control - reset TC on MR0      | `(1 << 1)`      |
+| PWMPCR   | 0xE001404C  | PWM control - enable PWM1 output     | `(1 << 9)`      |
+| PWMLER   | 0xE0014050  | Latch enable - apply MR0 & MR1       | `(1<<0)|(1<<1)` |
+| PWMTCR   | 0xE0014004  | Timer control - enable + PWM mode    | `(1<<0)|(1<<3)` |
+
+**Manual Reference:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control...
+
+----------------------------------------
+
+### Query: Configure PWM1 with 25% duty cycle
+**Status:** success
+**Time:** 47.20s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure pwm1 with 25% duty cycle'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control of the relationship of the 
+resolution of the timer versus the maximum time before the timer overflows. The PWM 
+Prescale Counter is incremented on every PCLK. When it reaches the value stored in the...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void PWM_Init(void)
+{
+    /* Step 1: Select PWM1 function on P0.0 */
+    PINSEL0 = (PINSEL0 & ~(0x3 << 0)) | (0x2 << 0);
+    PWMPR = 0;
+    PWMMR0 = 1000;
+    PWMMR1 = 500;
+    PWMMCR = (1 << 1);
+    PWMPCR = (1 << 9);
+    PWMLER = (1 << 0) | (1 << 1);
+    PWMTCR = (1 << 0) | (1 << 3);
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | Pin function select (bits 1:0 = PWM1)| `(0x2 << 0)`    |
+| PWMPR    | 0xE001400C  | Prescaler - PCLK divider             | `0` (div 1)     |
+| PWMMR0   | 0xE0014018  | Period - TC resets here              | `1000` ticks    |
+| PWMMR1   | 0xE001401C  | Duty cycle - PWM1 clears here        | `500` (50%)     |
+| PWMMCR   | 0xE0014014  | Match control - reset TC on MR0      | `(1 << 1)`      |
+| PWMPCR   | 0xE001404C  | PWM control - enable PWM1 output     | `(1 << 9)`      |
+| PWMLER   | 0xE0014050  | Latch enable - apply MR0 & MR1       | `(1<<0)|(1<<1)` |
+| PWMTCR   | 0xE0014004  | Timer control - enable + PWM mode    | `(1<<0)|(1<<3)` |
+
+**Manual Reference:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control...
+
+----------------------------------------
+
+### Query: What if START bits are not cleared before ADC conversion?
+**Status:** success
+**Time:** 47.22s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what if start bits are not cleared before adc conversion?'.**
+
+### 📋 Key Registers Extracted:
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+
+**Summary of Context:**
+The DONE and OVERRUN flags appearing in the ADDRn register for each A/D channel 
+are mirrored in ADSTAT. The interrupt flag (the logical OR of all DONE flags) is also found 
+in ADSTAT.
+
+Bit Symbol Value Description Reset 
+value
+15:0 - Reserved, user software should not write ones to reserved bits. The value read from a 
+reserved bit is not defined.
+NA
+16 BURST 1 The AD converters do repeated conversions at the rate selected by their CLKS fields, 
+scanning (if necessary) through the pins selected...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+The DONE and OVERRUN flags appearing in the ADDRn register for each A/D channel 
+are mirrored in ADSTAT. The interrupt flag (the logical OR of all DONE flags) is also found 
+in ADSTAT.
+
+Bit Symbol Value Description Reset 
+value
+15:0 - Reserved, user software should not write ones to reserved bits. T...
+
+----------------------------------------
+
+### Query: Initialize UART0 for 115200 baud
+**Status:** success
+**Time:** 47.24s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'initialize uart0 for 115200 baud'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+baud rate generation and can be read and written at user s discretion. This pre-scaler 
+takes the APB clock and generates an output clock per specified fractional requirements.
+Important: If the fractional divider is active (DIVADDVAL > 0) and DLM = 0, the value of 
+the DLL register must be 3 or greater.
+ 
+This register controls the clock pre-scaler for the baud rate generation. The reset value of 
+the register keeps the fractional capabilities of UART0 disabled making sure that UART0 
+is fully ...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+/**
+ * UART0_Init - initialises UART0 at 9600 baud
+ * (Assuming PCLK = 15 MHz)
+ */
+void UART0_Init(void)
+{
+    /* Step 1: Configure P0.0 (TXD0) and P0.1 (RXD0) 
+       Clear bits [3:0] then set bits 3:0 to 0101 (value 5) */
+    PINSEL0 &= ~(0xF << 0);
+    PINSEL0 |=  (0x5 << 0);
+
+    /* Step 2: Enable DLAB (Divisor Latch Access Bit) */
+    U0LCR = 0x83; 
+
+    /* Step 3: Set Baud Rate (9600)
+       DLL = PCLK / (16 * baud) = 15M / (16 * 9600) = 97 (0x61) */
+    U0DLL = 0x61;
+    U0DLM = 0x00;
+
+    /* Step 4: Disable DLAB, set 8-bit, no parity, 1 stop bit (8N1) */
+    U0LCR = 0x03;
+
+    /* Step 5: Enable FIFO and reset RX/TX buffers */
+    U0FCR = 0x07;
+}
+
+/**
+ * UART0_SendChar - Sends a single character (polling)
+ */
+void UART0_SendChar(char c)
+{
+    /* Wait until Transmit Holding Register (THR) is empty (bit 5 of LSR) */
+    while (!(U0LSR & (1 << 5)));
+    U0THR = c;
+}
+
+/**
+ * UART0_ReceiveChar - Receives a single character (polling)
+ */
+char UART0_ReceiveChar(void)
+{
+    /* Wait for Receiver Data Ready (RDR) (bit 0 of LSR) */
+    while (!(U0LSR & (1 << 0)));
+    return U0RBR;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | TXD0/RXD0 selection (bits 3:0 = 0101)| `(0x5 << 0)`    |
+| U0LCR    | 0xE000C00C  | Line Control (DLAB, Data bits, Parity)| `0x83` / `0x03` |
+| U0DLL    | 0xE000C000  | Baud rate divisor LSB                | `0x61`          |
+| U0DLM    | 0xE000C004  | Baud rate divisor MSB                | `0x00`          |
+| U0LSR    | 0xE000C014  | Line Status (Check THRE and RDR bits)| Status Read     |
+| U0FCR    | 0xE000C008  | FIFO Control (Enable + Reset)        | `0x07`          |
+
+**Manual Reference:**
+baud rate generation and can be read and written at user s discretion. This pre-scaler 
+takes the APB clock and generates an output clock per specified fractional requirements.
+Important: If the fractional divider is active (DIVADDVAL > 0) and DLM = 0, the value of 
+the DLL register must be 3 or gre...
+
+----------------------------------------
+
+### Query: What happens if PINSEL is not configured?
+**Status:** success
+**Time:** 47.26s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what happens if pinsel is not configured?'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+order to guarantee a chip reset. Once asserted, RESET pin can be deasserted only when 
+crystal oscillator is fully running and an adequate signal is present on the X1 pin of the 
+microcontroller. Assuming that an external crystal is used in the crystal oscillator 
+subsystem, after power on, the RESET pin should be asserted for 10 ms. For all 
+subsequent resets when crystal oscillator is already running and stable signal is on the X1 
+pin, the RESET pin needs to be asserted for 300 ns only.
+When ...
+
+---
+**Manual Reference:**
+order to guarantee a chip reset. Once asserted, RESET pin can be deasserted only when 
+crystal oscillator is fully running and an adequate signal is present on the X1 pin of the 
+microcontroller. Assuming that an external crystal is used in the crystal oscillator 
+subsystem, after power on, the RESET pin should be asserted for 10 ms. For all 
+subsequent resets when crystal oscillator is already running and stable signal is on the X1 
+pin, the RESET pin needs to be asserted for 300 ns only.
+When the internal Reset is removed, the processor begins executing at address 0, which 
+is initially the Reset vector mapped from the Boot Block. At that point, all of the processor 
+and peripheral registers have been initialized to predetermined values.
+External and internal Resets have some small differences. An external Reset causes the 
+value of certain pins to be latched to configure the part. External circuitry cannot 
+determine when an internal Reset occurs in order to allow setting up those s...
+
+----------------------------------------
+
+### Query: Configure GPIO P0.10 as output
+**Status:** success
+**Time:** 47.22s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure gpio p0.10 as output'.**
+
+### 📋 Key Registers Extracted:
+- **0000**: `0x3FFF C018`
+- **FIO0SET**: `0x3FFF C038`
+- **FIO0CLR**: `0x3FFF C03C`
+- **IO0DIR**: `0xE002 8018`
+- **IO0CLR**: `0xE002 801C`
+
+**Summary of Context:**
+0x0000
+
+8.5 GPIO usage notes
+8.5.1 Example 1: sequential accesses to  IOSET and IOCLR affecting the 
+same GPIO pin/bit
+State of the output configured GPIO pin is determined by writes into the pin s port IOSET 
+and IOCLR registers. Last of these accesses to the IOSET/IOCLR register will determine 
+the final output of a pin.
+In case of a code:
+IO0DIR = 0x0000 0080 ;pin P0.7 configured as output
+IO0CLR = 0x0000 0080 ;P0.7 goes LOW
+IO0SET = 0x0000 0080 ;P0.7 goes HIGH
+IO0CLR = 0x0000 0080 ;P0.7 goes...
+
+---
+**Manual Reference:**
+0x0000
+
+8.5 GPIO usage notes
+8.5.1 Example 1: sequential accesses to  IOSET and IOCLR affecting the 
+same GPIO pin/bit
+State of the output configured GPIO pin is determined by writes into the pin s port IOSET 
+and IOCLR registers. Last of these accesses to the IOSET/IOCLR register will determine 
+the final output of a pin.
+In case of a code:
+IO0DIR = 0x0000 0080 ;pin P0.7 configured as output
+IO0CLR = 0x0000 0080 ;P0.7 goes LOW
+IO0SET = 0x0000 0080 ;P0.7 goes HIGH
+IO0CLR = 0x0000 0080 ;P0.7 goes LOW
+pin P0.7 is configured as an output (write to IO0DIR register). After this, P0.7 output is set 
+to low (first write to IO0CLR register). Short high pulse follows on P0.7 (write access to 
+IO0SET), and the final write to IO0CLR register sets pin P0.7 back to low level.
+8.5.2 Example 2: an immediate output  of 0s and 1s on a GPIO port
+Write access to port s IOSET followed by write to the IOCLR register results with pins 
+outputting 0s being slightly later then pins outputting 1s. There are sy...
+
+----------------------------------------
+
+### Query: What if UART DLAB is not cleared?
+**Status:** success
+**Time:** 53.35s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what if uart dlab is not cleared?'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+xxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxx 
+xxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxx xxx
+
+ 
+[1] Reset value reflects the data stored in used bits only. It does not include reserved bits content.
+
+Name Description Bit functions and addresses Access Reset 
+value[1]
+Address
+MSB LSB
+BIT7 BIT6 BIT5 BIT4 BIT3 BIT2 BIT1 BIT0
+U0RBR Receiver Buffer 
+Register
+8-bit Read Data RO NA 0xE000 C000 
+(DLAB=0)
+U0THR Transmit Holding...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+/**
+ * UART0_Init - initialises UART0 at 9600 baud
+ * (Assuming PCLK = 15 MHz)
+ */
+void UART0_Init(void)
+{
+    /* Step 1: Configure P0.0 (TXD0) and P0.1 (RXD0) 
+       Clear bits [3:0] then set bits 3:0 to 0101 (value 5) */
+    PINSEL0 &= ~(0xF << 0);
+    PINSEL0 |=  (0x5 << 0);
+
+    /* Step 2: Enable DLAB (Divisor Latch Access Bit) */
+    U0LCR = 0x83; 
+
+    /* Step 3: Set Baud Rate (9600)
+       DLL = PCLK / (16 * baud) = 15M / (16 * 9600) = 97 (0x61) */
+    U0DLL = 0x61;
+    U0DLM = 0x00;
+
+    /* Step 4: Disable DLAB, set 8-bit, no parity, 1 stop bit (8N1) */
+    U0LCR = 0x03;
+
+    /* Step 5: Enable FIFO and reset RX/TX buffers */
+    U0FCR = 0x07;
+}
+
+/**
+ * UART0_SendChar - Sends a single character (polling)
+ */
+void UART0_SendChar(char c)
+{
+    /* Wait until Transmit Holding Register (THR) is empty (bit 5 of LSR) */
+    while (!(U0LSR & (1 << 5)));
+    U0THR = c;
+}
+
+/**
+ * UART0_ReceiveChar - Receives a single character (polling)
+ */
+char UART0_ReceiveChar(void)
+{
+    /* Wait for Receiver Data Ready (RDR) (bit 0 of LSR) */
+    while (!(U0LSR & (1 << 0)));
+    return U0RBR;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | TXD0/RXD0 selection (bits 3:0 = 0101)| `(0x5 << 0)`    |
+| U0LCR    | 0xE000C00C  | Line Control (DLAB, Data bits, Parity)| `0x83` / `0x03` |
+| U0DLL    | 0xE000C000  | Baud rate divisor LSB                | `0x61`          |
+| U0DLM    | 0xE000C004  | Baud rate divisor MSB                | `0x00`          |
+| U0LSR    | 0xE000C014  | Line Status (Check THRE and RDR bits)| Status Read     |
+| U0FCR    | 0xE000C008  | FIFO Control (Enable + Reset)        | `0x07`          |
+
+**Manual Reference:**
+xxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxx 
+xxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxx xxx
+
+ 
+[1] Reset value reflects the data stored in used bits only. It does not include reserved bits content.
+
+Name Description Bit f...
+
+----------------------------------------
+
+### Query: Read ADC value from AD0.1 continuously
+**Status:** success
+**Time:** 47.15s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'read adc value from ad0.1 continuously'.**
+
+### 📋 Key Registers Extracted:
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+- **281**: `0xE002 4080`
+- **282**: `0xE002 4084`
+- **287**: `0xE006 0000`
+- **288**: `0xE006 0004`
+- **289**: `0xE003 4008`
+
+**Summary of Context:**
+If the BURST bit in the ADCR is 0 and the START field contains 010-111, the ADC will 
+start a conversion when a transition occurs on a selected pin or Timer Match signal. The 
+choices include conversion on a specified edge of any of 4 Match signals, or conversion 
+on a specified edge of either of 2 Capture/Match pins. The pin state from the selected pad 
+or the selected Match signal, XORed with ADCR bit 27, is used in the edge detection 
+logic.
+19.5.2 Interrupts
+An interrupt request is asserted ...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+If the BURST bit in the ADCR is 0 and the START field contains 010-111, the ADC will 
+start a conversion when a transition occurs on a selected pin or Timer Match signal. The 
+choices include conversion on a specified edge of any of 4 Match signals, or conversion 
+on a specified edge of either of 2 ...
+
+----------------------------------------
+
+
+## LEVEL 2: Register Understanding
+===============================
+
+### Query: What if ADC DONE bit is ignored?
+**Status:** success
+**Time:** 47.31s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what if adc done bit is ignored?'.**
+
+### 📋 Key Registers Extracted:
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+
+**Summary of Context:**
+If the BURST bit in the ADCR is 0 and the START field contains 010-111, the ADC will 
+start a conversion when a transition occurs on a selected pin or Timer Match signal. The 
+choices include conversion on a specified edge of any of 4 Match signals, or conversion 
+on a specified edge of either of 2 Capture/Match pins. The pin state from the selected pad 
+or the selected Match signal, XORed with ADCR bit 27, is used in the edge detection 
+logic.
+19.5.2 Interrupts
+An interrupt request is asserted ...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+If the BURST bit in the ADCR is 0 and the START field contains 010-111, the ADC will 
+start a conversion when a transition occurs on a selected pin or Timer Match signal. The 
+choices include conversion on a specified edge of any of 4 Match signals, or conversion 
+on a specified edge of either of 2 ...
+
+----------------------------------------
+
+
+## LEVEL 4: Trap Questions
+=======================
+
+### Query: What is the role of AD0CR in LPC2148?
+**Status:** success
+**Time:** 47.19s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what is the role of ad0cr in lpc2148?'.**
+
+### 📋 Key Registers Extracted:
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+- **E006**: `002C
+AD1D`
+
+**Summary of Context:**
+19.4 Register description
+The A/D Converter registers are shown in Table 279.
+ 
+[1] Reset value reflects the data stored in used bits only. It does not include reserved bits content.
+Table 279. ADC registers
+Generic 
+Name
+Description Access Reset 
+value
+[1]
+AD0
+Address
+& Name
+AD1
+Address
+& Name
+ADCR A/D Control Register. The ADCR register must be 
+written to select the operating mode before A/D 
+conversion can occur.
+R/W 0x0000 0001 0xE003 4000
+AD0CR
+0xE006 0000
+AD1CR
+ADGDR A/D Global Data Regis...
+
+---
+**Manual Reference:**
+19.4 Register description
+The A/D Converter registers are shown in Table 279.
+ 
+[1] Reset value reflects the data stored in used bits only. It does not include reserved bits content.
+Table 279. ADC registers
+Generic 
+Name
+Description Access Reset 
+value
+[1]
+AD0
+Address
+& Name
+AD1
+Address
+& Name
+ADCR A/D Control Register. The ADCR register must be 
+written to select the operating mode before A/D 
+conversion can occur.
+R/W 0x0000 0001 0xE003 4000
+AD0CR
+0xE006 0000
+AD1CR
+ADGDR A/D Global Data Register. This register contains the 
+ADC s DONE bit and the result of the most recent A/D 
+conversion.
+R/W NA 0xE003 4004
+AD0GDR
+0xE006 0004
+AD1GDR
+ADSTAT A/D Status Register. This register contains DONE and 
+OVERRUN flags for all of the A/D channels, as well as 
+the A/D interrupt flag.
+RO 0x0000 0000 0xE003 4030
+AD0STAT
+0xE006 0030
+AD1STAT
+ADGSR A/D Global Start Register. This address can be written 
+(in the AD0 address range) to start conversions in both 
+A/D  converters simultaneously.
+WO 0x00 0x...
+
+----------------------------------------
+
+### Query: Configure ADC using register AD1CR
+**Status:** success
+**Time:** 47.43s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure adc using register ad1cr'.**
+
+### 📋 Key Registers Extracted:
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **281**: `0xE002 4080`
+- **282**: `0xE002 4084`
+- **287**: `0xE006 0000`
+- **288**: `0xE006 0004`
+- **289**: `0xE003 4008`
+
+**Summary of Context:**
+AD0DR6
+0xE006 0028
+ADDR7 A/D Channel 7 Data Register. This register contains the 
+result of the most recent conversion completed on 
+channel 7.
+RO NA 0xE003 402C
+AD0DR7
+0xE006 002C
+
+19.4.1 A/D Control Register  (AD0CR - 0xE003 4000 and AD1CR - 
+0xE006 0000)
+ 
+
+Bit Symbol Value Description Reset 
+value
+7:0 SEL Selects which of the AD0. 7:0/AD1.7:0 pins is (are) to be sampled and converted. For 
+AD0, bit 0 selects Pin AD0.0, and bit 7 selects pin AD0.7. In software-controlled mode, 
+only one of th...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+AD0DR6
+0xE006 0028
+ADDR7 A/D Channel 7 Data Register. This register contains the 
+result of the most recent conversion completed on 
+channel 7.
+RO NA 0xE003 402C
+AD0DR7
+0xE006 002C
+
+19.4.1 A/D Control Register  (AD0CR - 0xE003 4000 and AD1CR - 
+0xE006 0000)
+ 
+
+Bit Symbol Value Description Reset 
+val...
+
+----------------------------------------
+
+### Query: Why must ADC clock be <= 4.5 MHz?
+**Status:** success
+**Time:** 47.32s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'why must adc clock be <= 4.5 mhz?'.**
+
+### 📋 Key Registers Extracted:
+- **281**: `0xE002 4080`
+- **282**: `0xE002 4084`
+- **287**: `0xE006 0000`
+- **288**: `0xE006 0004`
+- **289**: `0xE003 4008`
+
+**Summary of Context:**
+regardless of the peripheral clock rate. Basically, the Prescaler divides the peripheral 
+clock (PCLK) by a value which contains both an integer portion and a fractional portion. 
+The result is not a continuous output at a constant frequency, some clock periods will be 
+one PCLK longer than others. However, the overall result can always be 32,768 counts 
+per second.
+The reference clock divider consists of a 13-bit integer counter and a 15-bit fractional 
+counter. The reasons for these counter si...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+regardless of the peripheral clock rate. Basically, the Prescaler divides the peripheral 
+clock (PCLK) by a value which contains both an integer portion and a fractional portion. 
+The result is not a continuous output at a constant frequency, some clock periods will be 
+one PCLK longer than others. ...
+
+----------------------------------------
+
+### Query: Use Arduino PWM registers for LPC2148
+**Status:** success
+**Time:** 47.41s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'use arduino pwm registers for lpc2148'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control of the relationship of the 
+resolution of the timer versus the maximum time before the timer overflows. The PWM 
+Prescale Counter is incremented on every PCLK. When it reaches the value stored in the...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void PWM_Init(void)
+{
+    /* Step 1: Select PWM1 function on P0.0 */
+    PINSEL0 = (PINSEL0 & ~(0x3 << 0)) | (0x2 << 0);
+    PWMPR = 0;
+    PWMMR0 = 1000;
+    PWMMR1 = 500;
+    PWMMCR = (1 << 1);
+    PWMPCR = (1 << 9);
+    PWMLER = (1 << 0) | (1 << 1);
+    PWMTCR = (1 << 0) | (1 << 3);
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | Pin function select (bits 1:0 = PWM1)| `(0x2 << 0)`    |
+| PWMPR    | 0xE001400C  | Prescaler - PCLK divider             | `0` (div 1)     |
+| PWMMR0   | 0xE0014018  | Period - TC resets here              | `1000` ticks    |
+| PWMMR1   | 0xE001401C  | Duty cycle - PWM1 clears here        | `500` (50%)     |
+| PWMMCR   | 0xE0014014  | Match control - reset TC on MR0      | `(1 << 1)`      |
+| PWMPCR   | 0xE001404C  | PWM control - enable PWM1 output     | `(1 << 9)`      |
+| PWMLER   | 0xE0014050  | Latch enable - apply MR0 & MR1       | `(1<<0)|(1<<1)` |
+| PWMTCR   | 0xE0014004  | Timer control - enable + PWM mode    | `(1<<0)|(1<<3)` |
+
+**Manual Reference:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control...
+
+----------------------------------------
+
+### Query: Difference between AD0DR and AD0GDR?
+**Status:** success
+**Time:** 47.04s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'difference between ad0dr and ad0gdr?'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+No specific board detected. Please specify a board or valid pins....
+
+---
+**Manual Reference:**
+No specific board detected. Please specify a board or valid pins....
+
+----------------------------------------
+
+### Query: What is TCCR2A in LPC2148?
+**Status:** success
+**Time:** 47.26s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what is tccr2a in lpc2148?'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+5.2 Pin description for LPC2141/2/4/6/8
+Pin description for LPC2141/2/4/6/8 and a brief explanation of corresponding functions 
+are shown in the following table.
+Fig 15. LPC2144/6/8 64-pin package
+LPC2144/2146/2148
+P0.21/PWM5/AD1.6/CAP1.3 P1.20/TRACESYNC
+P0.22/AD1.7/CAP0.0/MAT0.0 P0.17/CAP1.2/SCK1/MAT1.2
+RTCX1 P0.16/EINT0/MAT0.2/CAP0.2
+P1.19/TRACEPKT3 P0.15/RI1/EINT2/AD1.5
+RTCX2 P1.21/PIPESTAT0
+VSS VDD
+VDDA VSS
+P1.18/TRACEPKT2 P0.14/DCD1/EINT1/SDA1
+P0.25/AD0.4/AOUT P1.22/PIPESTAT1
+D+ P0.13/DTR1/...
+
+---
+**Manual Reference:**
+5.2 Pin description for LPC2141/2/4/6/8
+Pin description for LPC2141/2/4/6/8 and a brief explanation of corresponding functions 
+are shown in the following table.
+Fig 15. LPC2144/6/8 64-pin package
+LPC2144/2146/2148
+P0.21/PWM5/AD1.6/CAP1.3 P1.20/TRACESYNC
+P0.22/AD1.7/CAP0.0/MAT0.0 P0.17/CAP1.2/SCK1/MAT1.2
+RTCX1 P0.16/EINT0/MAT0.2/CAP0.2
+P1.19/TRACEPKT3 P0.15/RI1/EINT2/AD1.5
+RTCX2 P1.21/PIPESTAT0
+VSS VDD
+VDDA VSS
+P1.18/TRACEPKT2 P0.14/DCD1/EINT1/SDA1
+P0.25/AD0.4/AOUT P1.22/PIPESTAT1
+D+ P0.13/DTR1/MAT1.1/AD1.4
+D  P0.12/DSR1/MAT1.0/AD1.3
+P1.17/TRACEPKT1 P0.11/CTS1/CAP1.1/SCL1
+P0.28/AD0.1/CAP0.2/MAT0.2 P1.23/PIPESTAT2
+P0.29/AD0.2/CAP0.3/MAT0.3 P0.10/RTS1/CAP1.0/AD1.2
+P0.30/AD0.3/EINT3/CAP0.0 P0.9/RXD1/PWM6/EINT3
+P1.16/TRACEPKT0 P0.8/TXD1/PWM4/AD1.1
+P0.31/UP_LED/CONNECT P1.27/TDO 
+VSS VREF
+P0.0/TXD0/PWM1 XTAL1
+P1.31/TRST XTAL2
+P0.1/RXD0/PWM3/EINT0 P1.28/TDI
+P0.2/SCL0/CAP0.0 VSSA
+VDD P0.23/VBUS
+P1.26/RTCK RESET
+VSS P1.29/TCK
+P0.3/SDA0/MAT0.0/EINT1 P0.20/MAT1.3/SSEL1/EINT3
+P0.4/SCK0/CAP0.1/AD0...
+
+----------------------------------------
+
+### Query: What happens if PDN bit is 0?
+**Status:** success
+**Time:** 47.11s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what happens if pdn bit is 0?'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+No specific board detected. Please specify a board or valid pins....
+
+---
+**Manual Reference:**
+No specific board detected. Please specify a board or valid pins....
+
+----------------------------------------
+
+### Query: Configure SPI using register SPCR
+**Status:** success
+**Time:** 47.17s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure spi using register spcr'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+master. This register has no function when the SPI block is a slave.
+The I/Os for this implementation of SPI are standard CMOS I/Os. The open drain SPI 
+option is not implemented in this design. When a device is set up to be a slave, its I/Os are 
+only active when it is selected by the SSEL signal being active.
+12.2.4 Master operation
+The following sequence describes how one should process a data transfer with the SPI 
+block when it is set up to be the master. This process assumes that any prior...
+
+---
+**Manual Reference:**
+master. This register has no function when the SPI block is a slave.
+The I/Os for this implementation of SPI are standard CMOS I/Os. The open drain SPI 
+option is not implemented in this design. When a device is set up to be a slave, its I/Os are 
+only active when it is selected by the SSEL signal being active.
+12.2.4 Master operation
+The following sequence describes how one should process a data transfer with the SPI 
+block when it is set up to be the master. This process assumes that any prior data transfer 
+has already completed.
+1. Set the SPI clock counter regi ster to the desired clock rate.
+2. Set the SPI control register to the desired settings.
+3. Write the data to transmitted to the SPI da ta register. This write starts the SPI data 
+transfer.
+4. Wait for the SPIF bit in the SPI status register  to be set to 1. The SPIF bit will be set 
+after the last cycle of the SPI data transfer.
+5. Read the SPI status register.
+6. Read the received data from the SPI data register (optiona...
+
+----------------------------------------
+
+
+## LEVEL 5: Multi-Step Engineering Queries
+=======================================
+
+### Query: Explain CLKDIV calculation for ADC
+**Status:** success
+**Time:** 47.29s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'explain clkdiv calculation for adc'.**
+
+### 📋 Key Registers Extracted:
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+
+**Summary of Context:**
+The DONE and OVERRUN flags appearing in the ADDRn register for each A/D channel 
+are mirrored in ADSTAT. The interrupt flag (the logical OR of all DONE flags) is also found 
+in ADSTAT.
+
+Bit Symbol Value Description Reset 
+value
+15:0 - Reserved, user software should not write ones to reserved bits. The value read from a 
+reserved bit is not defined.
+NA
+16 BURST 1 The AD converters do repeated conversions at the rate selected by their CLKS fields, 
+scanning (if necessary) through the pins selected...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+The DONE and OVERRUN flags appearing in the ADDRn register for each A/D channel 
+are mirrored in ADSTAT. The interrupt flag (the logical OR of all DONE flags) is also found 
+in ADSTAT.
+
+Bit Symbol Value Description Reset 
+value
+15:0 - Reserved, user software should not write ones to reserved bits. T...
+
+----------------------------------------
+
+
+## LEVEL 3: Edge Cases
+===================
+
+### Query: Configure ADC + UART to send ADC values serially
+**Status:** success
+**Time:** 47.11s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure adc + uart to send adc values serially'.**
+
+### 📋 Key Registers Extracted:
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+- **E006**: `002C
+AD1D`
+
+**Summary of Context:**
+6. The rate counter is loaded into U0DLM/ U0DLL and the baud-rate will be switched to 
+normal operation. After setting the U0DLM/U0DLL the end of auto-baud interrupt 
+U0IIR ABEOInt will be set, if enabled. The U0RSR will now continue receiving the 
+remaining bits of the  A/a" character.
+ 
+10.3.14 UART0 Transmit Enable Register (U0TER - 0xE000 C030)
+The U0TER enables implementation of software flow control. When TXEn=1, UART0 
+transmitter will keep sending data as long as they are available. As s...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+/**
+ * UART0_Init - initialises UART0 at 9600 baud
+ * (Assuming PCLK = 15 MHz)
+ */
+void UART0_Init(void)
+{
+    /* Step 1: Configure P0.0 (TXD0) and P0.1 (RXD0) 
+       Clear bits [3:0] then set bits 3:0 to 0101 (value 5) */
+    PINSEL0 &= ~(0xF << 0);
+    PINSEL0 |=  (0x5 << 0);
+
+    /* Step 2: Enable DLAB (Divisor Latch Access Bit) */
+    U0LCR = 0x83; 
+
+    /* Step 3: Set Baud Rate (9600)
+       DLL = PCLK / (16 * baud) = 15M / (16 * 9600) = 97 (0x61) */
+    U0DLL = 0x61;
+    U0DLM = 0x00;
+
+    /* Step 4: Disable DLAB, set 8-bit, no parity, 1 stop bit (8N1) */
+    U0LCR = 0x03;
+
+    /* Step 5: Enable FIFO and reset RX/TX buffers */
+    U0FCR = 0x07;
+}
+
+/**
+ * UART0_SendChar - Sends a single character (polling)
+ */
+void UART0_SendChar(char c)
+{
+    /* Wait until Transmit Holding Register (THR) is empty (bit 5 of LSR) */
+    while (!(U0LSR & (1 << 5)));
+    U0THR = c;
+}
+
+/**
+ * UART0_ReceiveChar - Receives a single character (polling)
+ */
+char UART0_ReceiveChar(void)
+{
+    /* Wait for Receiver Data Ready (RDR) (bit 0 of LSR) */
+    while (!(U0LSR & (1 << 0)));
+    return U0RBR;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | TXD0/RXD0 selection (bits 3:0 = 0101)| `(0x5 << 0)`    |
+| U0LCR    | 0xE000C00C  | Line Control (DLAB, Data bits, Parity)| `0x83` / `0x03` |
+| U0DLL    | 0xE000C000  | Baud rate divisor LSB                | `0x61`          |
+| U0DLM    | 0xE000C004  | Baud rate divisor MSB                | `0x00`          |
+| U0LSR    | 0xE000C014  | Line Status (Check THRE and RDR bits)| Status Read     |
+| U0FCR    | 0xE000C008  | FIFO Control (Enable + Reset)        | `0x07`          |
+
+**Manual Reference:**
+6. The rate counter is loaded into U0DLM/ U0DLL and the baud-rate will be switched to 
+normal operation. After setting the U0DLM/U0DLL the end of auto-baud interrupt 
+U0IIR ABEOInt will be set, if enabled. The U0RSR will now continue receiving the 
+remaining bits of the  A/a" character.
+ 
+10.3.14 UA...
+
+----------------------------------------
+
+### Query: What happens if PWMMR0 = 0?
+**Status:** success
+**Time:** 47.09s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what happens if pwmmr0 = 0?'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control of the relationship of the 
+resolution of the timer versus the maximum time before the timer overflows. The PWM 
+Prescale Counter is incremented on every PCLK. When it reaches the value stored in the...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void PWM_Init(void)
+{
+    /* Step 1: Select PWM1 function on P0.0 */
+    PINSEL0 = (PINSEL0 & ~(0x3 << 0)) | (0x2 << 0);
+    PWMPR = 0;
+    PWMMR0 = 1000;
+    PWMMR1 = 500;
+    PWMMCR = (1 << 1);
+    PWMPCR = (1 << 9);
+    PWMLER = (1 << 0) | (1 << 1);
+    PWMTCR = (1 << 0) | (1 << 3);
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | Pin function select (bits 1:0 = PWM1)| `(0x2 << 0)`    |
+| PWMPR    | 0xE001400C  | Prescaler - PCLK divider             | `0` (div 1)     |
+| PWMMR0   | 0xE0014018  | Period - TC resets here              | `1000` ticks    |
+| PWMMR1   | 0xE001401C  | Duty cycle - PWM1 clears here        | `500` (50%)     |
+| PWMMCR   | 0xE0014014  | Match control - reset TC on MR0      | `(1 << 1)`      |
+| PWMPCR   | 0xE001404C  | PWM control - enable PWM1 output     | `(1 << 9)`      |
+| PWMLER   | 0xE0014050  | Latch enable - apply MR0 & MR1       | `(1<<0)|(1<<1)` |
+| PWMTCR   | 0xE0014004  | Timer control - enable + PWM mode    | `(1<<0)|(1<<3)` |
+
+**Manual Reference:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control...
+
+----------------------------------------
+
+### Query: Generate PWM signal based on ADC input
+**Status:** success
+**Time:** 47.11s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'generate pwm signal based on adc input'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control of the relationship of the 
+resolution of the timer versus the maximum time before the timer overflows. The PWM 
+Prescale Counter is incremented on every PCLK. When it reaches the value stored in the...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void PWM_Init(void)
+{
+    /* Step 1: Select PWM1 function on P0.0 */
+    PINSEL0 = (PINSEL0 & ~(0x3 << 0)) | (0x2 << 0);
+    PWMPR = 0;
+    PWMMR0 = 1000;
+    PWMMR1 = 500;
+    PWMMCR = (1 << 1);
+    PWMPCR = (1 << 9);
+    PWMLER = (1 << 0) | (1 << 1);
+    PWMTCR = (1 << 0) | (1 << 3);
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | Pin function select (bits 1:0 = PWM1)| `(0x2 << 0)`    |
+| PWMPR    | 0xE001400C  | Prescaler - PCLK divider             | `0` (div 1)     |
+| PWMMR0   | 0xE0014018  | Period - TC resets here              | `1000` ticks    |
+| PWMMR1   | 0xE001401C  | Duty cycle - PWM1 clears here        | `500` (50%)     |
+| PWMMCR   | 0xE0014014  | Match control - reset TC on MR0      | `(1 << 1)`      |
+| PWMPCR   | 0xE001404C  | PWM control - enable PWM1 output     | `(1 << 9)`      |
+| PWMLER   | 0xE0014050  | Latch enable - apply MR0 & MR1       | `(1<<0)|(1<<1)` |
+| PWMTCR   | 0xE0014004  | Timer control - enable + PWM mode    | `(1<<0)|(1<<3)` |
+
+**Manual Reference:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control...
+
+----------------------------------------
+
+### Query: What if START bits are not cleared before ADC conversion?
+**Status:** success
+**Time:** 47.12s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what if start bits are not cleared before adc conversion?'.**
+
+### 📋 Key Registers Extracted:
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+
+**Summary of Context:**
+The DONE and OVERRUN flags appearing in the ADDRn register for each A/D channel 
+are mirrored in ADSTAT. The interrupt flag (the logical OR of all DONE flags) is also found 
+in ADSTAT.
+
+Bit Symbol Value Description Reset 
+value
+15:0 - Reserved, user software should not write ones to reserved bits. The value read from a 
+reserved bit is not defined.
+NA
+16 BURST 1 The AD converters do repeated conversions at the rate selected by their CLKS fields, 
+scanning (if necessary) through the pins selected...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+The DONE and OVERRUN flags appearing in the ADDRn register for each A/D channel 
+are mirrored in ADSTAT. The interrupt flag (the logical OR of all DONE flags) is also found 
+in ADSTAT.
+
+Bit Symbol Value Description Reset 
+value
+15:0 - Reserved, user software should not write ones to reserved bits. T...
+
+----------------------------------------
+
+### Query: Configure interrupt-driven ADC conversion
+**Status:** success
+**Time:** 47.12s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure interrupt-driven adc conversion'.**
+
+### 📋 Key Registers Extracted:
+- **0002**: `0000
+ADC0`
+- **0010**: `0000
+ADC1`
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+
+**Summary of Context:**
+If the BURST bit in the ADCR is 0 and the START field contains 010-111, the ADC will 
+start a conversion when a transition occurs on a selected pin or Timer Match signal. The 
+choices include conversion on a specified edge of any of 4 Match signals, or conversion 
+on a specified edge of either of 2 Capture/Match pins. The pin state from the selected pad 
+or the selected Match signal, XORed with ADCR bit 27, is used in the edge detection 
+logic.
+19.5.2 Interrupts
+An interrupt request is asserted ...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+If the BURST bit in the ADCR is 0 and the START field contains 010-111, the ADC will 
+start a conversion when a transition occurs on a selected pin or Timer Match signal. The 
+choices include conversion on a specified edge of any of 4 Match signals, or conversion 
+on a specified edge of either of 2 ...
+
+----------------------------------------
+
+### Query: What happens if PINSEL is not configured?
+**Status:** success
+**Time:** 47.12s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what happens if pinsel is not configured?'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+order to guarantee a chip reset. Once asserted, RESET pin can be deasserted only when 
+crystal oscillator is fully running and an adequate signal is present on the X1 pin of the 
+microcontroller. Assuming that an external crystal is used in the crystal oscillator 
+subsystem, after power on, the RESET pin should be asserted for 10 ms. For all 
+subsequent resets when crystal oscillator is already running and stable signal is on the X1 
+pin, the RESET pin needs to be asserted for 300 ns only.
+When ...
+
+---
+**Manual Reference:**
+order to guarantee a chip reset. Once asserted, RESET pin can be deasserted only when 
+crystal oscillator is fully running and an adequate signal is present on the X1 pin of the 
+microcontroller. Assuming that an external crystal is used in the crystal oscillator 
+subsystem, after power on, the RESET pin should be asserted for 10 ms. For all 
+subsequent resets when crystal oscillator is already running and stable signal is on the X1 
+pin, the RESET pin needs to be asserted for 300 ns only.
+When the internal Reset is removed, the processor begins executing at address 0, which 
+is initially the Reset vector mapped from the Boot Block. At that point, all of the processor 
+and peripheral registers have been initialized to predetermined values.
+External and internal Resets have some small differences. An external Reset causes the 
+value of certain pins to be latched to configure the part. External circuitry cannot 
+determine when an internal Reset occurs in order to allow setting up those s...
+
+----------------------------------------
+
+### Query: Read multiple ADC channels sequentially
+**Status:** success
+**Time:** 47.11s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'read multiple adc channels sequentially'.**
+
+### 📋 Key Registers Extracted:
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+
+**Summary of Context:**
+AD0DR6
+0xE006 0028
+ADDR7 A/D Channel 7 Data Register. This register contains the 
+result of the most recent conversion completed on 
+channel 7.
+RO NA 0xE003 402C
+AD0DR7
+0xE006 002C
+
+19.4.1 A/D Control Register  (AD0CR - 0xE003 4000 and AD1CR - 
+0xE006 0000)
+ 
+
+Bit Symbol Value Description Reset 
+value
+7:0 SEL Selects which of the AD0. 7:0/AD1.7:0 pins is (are) to be sampled and converted. For 
+AD0, bit 0 selects Pin AD0.0, and bit 7 selects pin AD0.7. In software-controlled mode, 
+only one of th...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+AD0DR6
+0xE006 0028
+ADDR7 A/D Channel 7 Data Register. This register contains the 
+result of the most recent conversion completed on 
+channel 7.
+RO NA 0xE003 402C
+AD0DR7
+0xE006 002C
+
+19.4.1 A/D Control Register  (AD0CR - 0xE003 4000 and AD1CR - 
+0xE006 0000)
+ 
+
+Bit Symbol Value Description Reset 
+val...
+
+----------------------------------------
+
+### Query: What if UART DLAB is not cleared?
+**Status:** success
+**Time:** 47.10s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what if uart dlab is not cleared?'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+xxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxx 
+xxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxx xxx
+
+ 
+[1] Reset value reflects the data stored in used bits only. It does not include reserved bits content.
+
+Name Description Bit functions and addresses Access Reset 
+value[1]
+Address
+MSB LSB
+BIT7 BIT6 BIT5 BIT4 BIT3 BIT2 BIT1 BIT0
+U0RBR Receiver Buffer 
+Register
+8-bit Read Data RO NA 0xE000 C000 
+(DLAB=0)
+U0THR Transmit Holding...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+/**
+ * UART0_Init - initialises UART0 at 9600 baud
+ * (Assuming PCLK = 15 MHz)
+ */
+void UART0_Init(void)
+{
+    /* Step 1: Configure P0.0 (TXD0) and P0.1 (RXD0) 
+       Clear bits [3:0] then set bits 3:0 to 0101 (value 5) */
+    PINSEL0 &= ~(0xF << 0);
+    PINSEL0 |=  (0x5 << 0);
+
+    /* Step 2: Enable DLAB (Divisor Latch Access Bit) */
+    U0LCR = 0x83; 
+
+    /* Step 3: Set Baud Rate (9600)
+       DLL = PCLK / (16 * baud) = 15M / (16 * 9600) = 97 (0x61) */
+    U0DLL = 0x61;
+    U0DLM = 0x00;
+
+    /* Step 4: Disable DLAB, set 8-bit, no parity, 1 stop bit (8N1) */
+    U0LCR = 0x03;
+
+    /* Step 5: Enable FIFO and reset RX/TX buffers */
+    U0FCR = 0x07;
+}
+
+/**
+ * UART0_SendChar - Sends a single character (polling)
+ */
+void UART0_SendChar(char c)
+{
+    /* Wait until Transmit Holding Register (THR) is empty (bit 5 of LSR) */
+    while (!(U0LSR & (1 << 5)));
+    U0THR = c;
+}
+
+/**
+ * UART0_ReceiveChar - Receives a single character (polling)
+ */
+char UART0_ReceiveChar(void)
+{
+    /* Wait for Receiver Data Ready (RDR) (bit 0 of LSR) */
+    while (!(U0LSR & (1 << 0)));
+    return U0RBR;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | TXD0/RXD0 selection (bits 3:0 = 0101)| `(0x5 << 0)`    |
+| U0LCR    | 0xE000C00C  | Line Control (DLAB, Data bits, Parity)| `0x83` / `0x03` |
+| U0DLL    | 0xE000C000  | Baud rate divisor LSB                | `0x61`          |
+| U0DLM    | 0xE000C004  | Baud rate divisor MSB                | `0x00`          |
+| U0LSR    | 0xE000C014  | Line Status (Check THRE and RDR bits)| Status Read     |
+| U0FCR    | 0xE000C008  | FIFO Control (Enable + Reset)        | `0x07`          |
+
+**Manual Reference:**
+xxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxx 
+xxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxx xxx
+
+ 
+[1] Reset value reflects the data stored in used bits only. It does not include reserved bits content.
+
+Name Description Bit f...
+
+----------------------------------------
+
+### Query: Build a simple sensor monitoring system using LPC2148
+**Status:** success
+**Time:** 47.11s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'build a simple sensor monitoring system using lpc2148'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+1.1 Introduction
+The LPC2141/2/4/6/8 microcontrollers are based on a 32/16 bit ARM7TDMI-S CPU with 
+real-time emulation and embedded trace support, that combines the microcontroller with 
+embedded high speed flash memory ranging from 32 kB to 512 kB. A 128-bit wide 
+memory interface and a unique accelerator architecture enable 32-bit code execution at 
+the maximum clock rate. For critical code size applications, the alternative 16-bit Thumb 
+mode reduces code by more than 30 % with minimal perfo...
+
+---
+**Manual Reference:**
+1.1 Introduction
+The LPC2141/2/4/6/8 microcontrollers are based on a 32/16 bit ARM7TDMI-S CPU with 
+real-time emulation and embedded trace support, that combines the microcontroller with 
+embedded high speed flash memory ranging from 32 kB to 512 kB. A 128-bit wide 
+memory interface and a unique accelerator architecture enable 32-bit code execution at 
+the maximum clock rate. For critical code size applications, the alternative 16-bit Thumb 
+mode reduces code by more than 30 % with minimal performance penalty.
+Due to their tiny size and low power consumption, LPC2141/2/4/6/8 are ideal for 
+applications where miniaturization is a key requirement, such as access control and 
+point-of-sale. A blend of serial communications interfaces ranging from a USB 2.0 Full 
+Speed device, multiple UARTs, SPI, SSP to I
+2Cs, and on-chip SRAM of 8 kB up to 40 kB, 
+make these devices very well suited for communication gateways and protocol 
+converters, soft modems, voice recognition and low end imaging, p...
+
+----------------------------------------
+
+
+## LEVEL 6: Retrieval Stress Test
+==============================
+
+### Query: Pin mapping for PWM5
+**Status:** success
+**Time:** 0.06s
+
+**Response:**
+### 📍 Pin Mapping for LPC2148
+
+The following pin mappings are verified for PWM channels on LPC2148:
+
+| Port Pin | Function   | PINSEL Register | Bit positions | Bit value |
+|----------|------------|-----------------|---------------|-----------|
+| P0.0     | PWM1       | PINSEL0         | bits [1:0]    | `10` (2)  |
+| P0.7     | PWM2       | PINSEL0         | bits [15:14]  | `10` (2)  |
+| P0.21    | PWM5       | PINSEL1         | bits [11:10]  | `01` (1)  |
+
+**Note:** You specifically asked for **PWM5**. See the corresponding row above.
+
+----------------------------------------
+
+### Query: What if ADC DONE bit is ignored?
+**Status:** success
+**Time:** 47.16s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what if adc done bit is ignored?'.**
+
+### 📋 Key Registers Extracted:
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+
+**Summary of Context:**
+If the BURST bit in the ADCR is 0 and the START field contains 010-111, the ADC will 
+start a conversion when a transition occurs on a selected pin or Timer Match signal. The 
+choices include conversion on a specified edge of any of 4 Match signals, or conversion 
+on a specified edge of either of 2 Capture/Match pins. The pin state from the selected pad 
+or the selected Match signal, XORed with ADCR bit 27, is used in the edge detection 
+logic.
+19.5.2 Interrupts
+An interrupt request is asserted ...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+If the BURST bit in the ADCR is 0 and the START field contains 010-111, the ADC will 
+start a conversion when a transition occurs on a selected pin or Timer Match signal. The 
+choices include conversion on a specified edge of any of 4 Match signals, or conversion 
+on a specified edge of either of 2 ...
+
+----------------------------------------
+
+
+## LEVEL 4: Trap Questions
+=======================
+
+### Query: Address of PWMPCR register
+**Status:** success
+**Time:** 47.15s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'address of pwmpcr register'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control of the relationship of the 
+resolution of the timer versus the maximum time before the timer overflows. The PWM 
+Prescale Counter is incremented on every PCLK. When it reaches the value stored in the...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void PWM_Init(void)
+{
+    /* Step 1: Select PWM1 function on P0.0 */
+    PINSEL0 = (PINSEL0 & ~(0x3 << 0)) | (0x2 << 0);
+    PWMPR = 0;
+    PWMMR0 = 1000;
+    PWMMR1 = 500;
+    PWMMCR = (1 << 1);
+    PWMPCR = (1 << 9);
+    PWMLER = (1 << 0) | (1 << 1);
+    PWMTCR = (1 << 0) | (1 << 3);
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | Pin function select (bits 1:0 = PWM1)| `(0x2 << 0)`    |
+| PWMPR    | 0xE001400C  | Prescaler - PCLK divider             | `0` (div 1)     |
+| PWMMR0   | 0xE0014018  | Period - TC resets here              | `1000` ticks    |
+| PWMMR1   | 0xE001401C  | Duty cycle - PWM1 clears here        | `500` (50%)     |
+| PWMMCR   | 0xE0014014  | Match control - reset TC on MR0      | `(1 << 1)`      |
+| PWMPCR   | 0xE001404C  | PWM control - enable PWM1 output     | `(1 << 9)`      |
+| PWMLER   | 0xE0014050  | Latch enable - apply MR0 & MR1       | `(1<<0)|(1<<1)` |
+| PWMTCR   | 0xE0014004  | Timer control - enable + PWM mode    | `(1<<0)|(1<<3)` |
+
+**Manual Reference:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control...
+
+----------------------------------------
+
+### Query: Configure ADC using register AD1CR
+**Status:** success
+**Time:** 47.12s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure adc using register ad1cr'.**
+
+### 📋 Key Registers Extracted:
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **281**: `0xE002 4080`
+- **282**: `0xE002 4084`
+- **287**: `0xE006 0000`
+- **288**: `0xE006 0004`
+- **289**: `0xE003 4008`
+
+**Summary of Context:**
+AD0DR6
+0xE006 0028
+ADDR7 A/D Channel 7 Data Register. This register contains the 
+result of the most recent conversion completed on 
+channel 7.
+RO NA 0xE003 402C
+AD0DR7
+0xE006 002C
+
+19.4.1 A/D Control Register  (AD0CR - 0xE003 4000 and AD1CR - 
+0xE006 0000)
+ 
+
+Bit Symbol Value Description Reset 
+value
+7:0 SEL Selects which of the AD0. 7:0/AD1.7:0 pins is (are) to be sampled and converted. For 
+AD0, bit 0 selects Pin AD0.0, and bit 7 selects pin AD0.7. In software-controlled mode, 
+only one of th...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+AD0DR6
+0xE006 0028
+ADDR7 A/D Channel 7 Data Register. This register contains the 
+result of the most recent conversion completed on 
+channel 7.
+RO NA 0xE003 402C
+AD0DR7
+0xE006 002C
+
+19.4.1 A/D Control Register  (AD0CR - 0xE003 4000 and AD1CR - 
+0xE006 0000)
+ 
+
+Bit Symbol Value Description Reset 
+val...
+
+----------------------------------------
+
+### Query: Bit position of AD0CR PDN
+**Status:** success
+**Time:** 47.10s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'bit position of ad0cr pdn'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+No specific board detected. Please specify a board or valid pins....
+
+---
+**Manual Reference:**
+No specific board detected. Please specify a board or valid pins....
+
+----------------------------------------
+
+### Query: Use Arduino PWM registers for LPC2148
+**Status:** success
+**Time:** 47.16s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'use arduino pwm registers for lpc2148'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control of the relationship of the 
+resolution of the timer versus the maximum time before the timer overflows. The PWM 
+Prescale Counter is incremented on every PCLK. When it reaches the value stored in the...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void PWM_Init(void)
+{
+    /* Step 1: Select PWM1 function on P0.0 */
+    PINSEL0 = (PINSEL0 & ~(0x3 << 0)) | (0x2 << 0);
+    PWMPR = 0;
+    PWMMR0 = 1000;
+    PWMMR1 = 500;
+    PWMMCR = (1 << 1);
+    PWMPCR = (1 << 9);
+    PWMLER = (1 << 0) | (1 << 1);
+    PWMTCR = (1 << 0) | (1 << 3);
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | Pin function select (bits 1:0 = PWM1)| `(0x2 << 0)`    |
+| PWMPR    | 0xE001400C  | Prescaler - PCLK divider             | `0` (div 1)     |
+| PWMMR0   | 0xE0014018  | Period - TC resets here              | `1000` ticks    |
+| PWMMR1   | 0xE001401C  | Duty cycle - PWM1 clears here        | `500` (50%)     |
+| PWMMCR   | 0xE0014014  | Match control - reset TC on MR0      | `(1 << 1)`      |
+| PWMPCR   | 0xE001404C  | PWM control - enable PWM1 output     | `(1 << 9)`      |
+| PWMLER   | 0xE0014050  | Latch enable - apply MR0 & MR1       | `(1<<0)|(1<<1)` |
+| PWMTCR   | 0xE0014004  | Timer control - enable + PWM mode    | `(1<<0)|(1<<3)` |
+
+**Manual Reference:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control...
+
+----------------------------------------
+
+### Query: UART0 register memory map
+**Status:** success
+**Time:** 47.11s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'uart0 register memory map'.**
+
+### 📋 Key Registers Extracted:
+- **RESERVED**: `0xF000 0000`
+- **FFFF**: `0xE000 0000`
+- **0000**: `0xFFDF FFFF`
+- **E003**: `4000 ADC0`
+- **8000**: `0xE005 8000`
+- **E006**: `0000 ADC1`
+- **126**: `0xE009 4000`
+- **127**: `0xE01F C000`
+
+**Summary of Context:**
+DLAB = 1) bit description
+Bit Symbol Description Reset value
+7:0 DLM The UART0 Divisor Latch MSB Register, along with the U0DLL 
+register, determines the baud rate of the UART0.
+0x00
+
+description
+Bit Function Description Reset value
+3:0 DIVADDVAL Baudrate generation pre-scaler divisor value. If this field is 0, 
+fractional baudrate generator will not impact the UART0 
+baudrate.
+0
+7:4 MULVAL Baudrate pre-scaler multiplier value. This field must be greater 
+or equal 1 for UART0 to operate properly...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+/**
+ * UART0_Init - initialises UART0 at 9600 baud
+ * (Assuming PCLK = 15 MHz)
+ */
+void UART0_Init(void)
+{
+    /* Step 1: Configure P0.0 (TXD0) and P0.1 (RXD0) 
+       Clear bits [3:0] then set bits 3:0 to 0101 (value 5) */
+    PINSEL0 &= ~(0xF << 0);
+    PINSEL0 |=  (0x5 << 0);
+
+    /* Step 2: Enable DLAB (Divisor Latch Access Bit) */
+    U0LCR = 0x83; 
+
+    /* Step 3: Set Baud Rate (9600)
+       DLL = PCLK / (16 * baud) = 15M / (16 * 9600) = 97 (0x61) */
+    U0DLL = 0x61;
+    U0DLM = 0x00;
+
+    /* Step 4: Disable DLAB, set 8-bit, no parity, 1 stop bit (8N1) */
+    U0LCR = 0x03;
+
+    /* Step 5: Enable FIFO and reset RX/TX buffers */
+    U0FCR = 0x07;
+}
+
+/**
+ * UART0_SendChar - Sends a single character (polling)
+ */
+void UART0_SendChar(char c)
+{
+    /* Wait until Transmit Holding Register (THR) is empty (bit 5 of LSR) */
+    while (!(U0LSR & (1 << 5)));
+    U0THR = c;
+}
+
+/**
+ * UART0_ReceiveChar - Receives a single character (polling)
+ */
+char UART0_ReceiveChar(void)
+{
+    /* Wait for Receiver Data Ready (RDR) (bit 0 of LSR) */
+    while (!(U0LSR & (1 << 0)));
+    return U0RBR;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | TXD0/RXD0 selection (bits 3:0 = 0101)| `(0x5 << 0)`    |
+| U0LCR    | 0xE000C00C  | Line Control (DLAB, Data bits, Parity)| `0x83` / `0x03` |
+| U0DLL    | 0xE000C000  | Baud rate divisor LSB                | `0x61`          |
+| U0DLM    | 0xE000C004  | Baud rate divisor MSB                | `0x00`          |
+| U0LSR    | 0xE000C014  | Line Status (Check THRE and RDR bits)| Status Read     |
+| U0FCR    | 0xE000C008  | FIFO Control (Enable + Reset)        | `0x07`          |
+
+**Manual Reference:**
+DLAB = 1) bit description
+Bit Symbol Description Reset value
+7:0 DLM The UART0 Divisor Latch MSB Register, along with the U0DLL 
+register, determines the baud rate of the UART0.
+0x00
+
+description
+Bit Function Description Reset value
+3:0 DIVADDVAL Baudrate generation pre-scaler divisor value. If this...
+
+----------------------------------------
+
+### Query: What is TCCR2A in LPC2148?
+**Status:** success
+**Time:** 47.15s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'what is tccr2a in lpc2148?'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+5.2 Pin description for LPC2141/2/4/6/8
+Pin description for LPC2141/2/4/6/8 and a brief explanation of corresponding functions 
+are shown in the following table.
+Fig 15. LPC2144/6/8 64-pin package
+LPC2144/2146/2148
+P0.21/PWM5/AD1.6/CAP1.3 P1.20/TRACESYNC
+P0.22/AD1.7/CAP0.0/MAT0.0 P0.17/CAP1.2/SCK1/MAT1.2
+RTCX1 P0.16/EINT0/MAT0.2/CAP0.2
+P1.19/TRACEPKT3 P0.15/RI1/EINT2/AD1.5
+RTCX2 P1.21/PIPESTAT0
+VSS VDD
+VDDA VSS
+P1.18/TRACEPKT2 P0.14/DCD1/EINT1/SDA1
+P0.25/AD0.4/AOUT P1.22/PIPESTAT1
+D+ P0.13/DTR1/...
+
+---
+**Manual Reference:**
+5.2 Pin description for LPC2141/2/4/6/8
+Pin description for LPC2141/2/4/6/8 and a brief explanation of corresponding functions 
+are shown in the following table.
+Fig 15. LPC2144/6/8 64-pin package
+LPC2144/2146/2148
+P0.21/PWM5/AD1.6/CAP1.3 P1.20/TRACESYNC
+P0.22/AD1.7/CAP0.0/MAT0.0 P0.17/CAP1.2/SCK1/MAT1.2
+RTCX1 P0.16/EINT0/MAT0.2/CAP0.2
+P1.19/TRACEPKT3 P0.15/RI1/EINT2/AD1.5
+RTCX2 P1.21/PIPESTAT0
+VSS VDD
+VDDA VSS
+P1.18/TRACEPKT2 P0.14/DCD1/EINT1/SDA1
+P0.25/AD0.4/AOUT P1.22/PIPESTAT1
+D+ P0.13/DTR1/MAT1.1/AD1.4
+D  P0.12/DSR1/MAT1.0/AD1.3
+P1.17/TRACEPKT1 P0.11/CTS1/CAP1.1/SCL1
+P0.28/AD0.1/CAP0.2/MAT0.2 P1.23/PIPESTAT2
+P0.29/AD0.2/CAP0.3/MAT0.3 P0.10/RTS1/CAP1.0/AD1.2
+P0.30/AD0.3/EINT3/CAP0.0 P0.9/RXD1/PWM6/EINT3
+P1.16/TRACEPKT0 P0.8/TXD1/PWM4/AD1.1
+P0.31/UP_LED/CONNECT P1.27/TDO 
+VSS VREF
+P0.0/TXD0/PWM1 XTAL1
+P1.31/TRST XTAL2
+P0.1/RXD0/PWM3/EINT0 P1.28/TDI
+P0.2/SCL0/CAP0.0 VSSA
+VDD P0.23/VBUS
+P1.26/RTCK RESET
+VSS P1.29/TCK
+P0.3/SDA0/MAT0.0/EINT1 P0.20/MAT1.3/SSEL1/EINT3
+P0.4/SCK0/CAP0.1/AD0...
+
+----------------------------------------
+
+### Query: Full register table for ADC
+**Status:** success
+**Time:** 47.14s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'full register table for adc'.**
+
+### 📋 Key Registers Extracted:
+- **281**: `0xE002 4080`
+- **282**: `0xE002 4084`
+- **287**: `0xE006 0000`
+- **288**: `0xE006 0004`
+- **289**: `0xE003 4008`
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+- **232**: `0xE000 000C`
+- **275**: `0xE002 4000`
+- **276**: `0xE002 4004`
+- **277**: `0xE002 4010`
+- **278**: `0xE002 4018`
+- **234**: `0xE005 C014`
+
+**Summary of Context:**
+Table 273. Reference clock divider registers  . . . . . . . . . 281
+
+0xE002 4080) bit description . . . . . . . . . . . . . 282
+
+0xE002 4084) bit description . . . . . . . . . . . . . 282
+Table 276. Prescaler cases where the Integer Counter 
+reload value is incremented . . . . . . . . . . . . . . 284
+Table 277. Recommended values for the RTC external 
+32 kHz oscillator C
+X1/X2 components . . . . . . . 285
+Table 278. ADC pin description  . . . . . . . . . . . . . . . . . . . 286
+Table 279. ADC re...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+Table 273. Reference clock divider registers  . . . . . . . . . 281
+
+0xE002 4080) bit description . . . . . . . . . . . . . 282
+
+0xE002 4084) bit description . . . . . . . . . . . . . 282
+Table 276. Prescaler cases where the Integer Counter 
+reload value is incremented . . . . . . . . . . . . . . 28...
+
+----------------------------------------
+
+
+## BONUS: One-Shot Validation
+==========================
+
+### Query: Configure SPI using register SPCR
+**Status:** success
+**Time:** 47.11s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure spi using register spcr'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+master. This register has no function when the SPI block is a slave.
+The I/Os for this implementation of SPI are standard CMOS I/Os. The open drain SPI 
+option is not implemented in this design. When a device is set up to be a slave, its I/Os are 
+only active when it is selected by the SSEL signal being active.
+12.2.4 Master operation
+The following sequence describes how one should process a data transfer with the SPI 
+block when it is set up to be the master. This process assumes that any prior...
+
+---
+**Manual Reference:**
+master. This register has no function when the SPI block is a slave.
+The I/Os for this implementation of SPI are standard CMOS I/Os. The open drain SPI 
+option is not implemented in this design. When a device is set up to be a slave, its I/Os are 
+only active when it is selected by the SSEL signal being active.
+12.2.4 Master operation
+The following sequence describes how one should process a data transfer with the SPI 
+block when it is set up to be the master. This process assumes that any prior data transfer 
+has already completed.
+1. Set the SPI clock counter regi ster to the desired clock rate.
+2. Set the SPI control register to the desired settings.
+3. Write the data to transmitted to the SPI da ta register. This write starts the SPI data 
+transfer.
+4. Wait for the SPIF bit in the SPI status register  to be set to 1. The SPIF bit will be set 
+after the last cycle of the SPI data transfer.
+5. Read the SPI status register.
+6. Read the received data from the SPI data register (optiona...
+
+----------------------------------------
+
+
+## LEVEL 5: Multi-Step Engineering Queries
+=======================================
+
+### Query: Configure ADC but do NOT include pin mapping
+**Status:** success
+**Time:** 47.14s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure adc but do not include pin mapping'.**
+
+### 📋 Key Registers Extracted:
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+
+**Summary of Context:**
+ADC/DAC are not used.
+VBAT 49 I RTC Power Supply: 3.3 V on this pin supplies the power to the RTC.
+Table 35. Pin description   continued
+Symbol Pin Type Description
+
+ 
+6.1 Features
+Allows individual pin configuration.
+6.2 Applications
+The purpose of the Pin connect block is to configure the microcontroller pins to the 
+desired functions.
+6.3 Description
+The pin connect block allows selected pins of the microcontroller to have more than one 
+function. Configuration registers control the multiplex...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+ADC/DAC are not used.
+VBAT 49 I RTC Power Supply: 3.3 V on this pin supplies the power to the RTC.
+Table 35. Pin description   continued
+Symbol Pin Type Description
+
+ 
+6.1 Features
+Allows individual pin configuration.
+6.2 Applications
+The purpose of the Pin connect block is to configure the microcon...
+
+----------------------------------------
+
+### Query: Configure ADC + UART to send ADC values serially
+**Status:** success
+**Time:** 47.14s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure adc + uart to send adc values serially'.**
+
+### 📋 Key Registers Extracted:
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+- **E006**: `002C
+AD1D`
+
+**Summary of Context:**
+6. The rate counter is loaded into U0DLM/ U0DLL and the baud-rate will be switched to 
+normal operation. After setting the U0DLM/U0DLL the end of auto-baud interrupt 
+U0IIR ABEOInt will be set, if enabled. The U0RSR will now continue receiving the 
+remaining bits of the  A/a" character.
+ 
+10.3.14 UART0 Transmit Enable Register (U0TER - 0xE000 C030)
+The U0TER enables implementation of software flow control. When TXEn=1, UART0 
+transmitter will keep sending data as long as they are available. As s...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+/**
+ * UART0_Init - initialises UART0 at 9600 baud
+ * (Assuming PCLK = 15 MHz)
+ */
+void UART0_Init(void)
+{
+    /* Step 1: Configure P0.0 (TXD0) and P0.1 (RXD0) 
+       Clear bits [3:0] then set bits 3:0 to 0101 (value 5) */
+    PINSEL0 &= ~(0xF << 0);
+    PINSEL0 |=  (0x5 << 0);
+
+    /* Step 2: Enable DLAB (Divisor Latch Access Bit) */
+    U0LCR = 0x83; 
+
+    /* Step 3: Set Baud Rate (9600)
+       DLL = PCLK / (16 * baud) = 15M / (16 * 9600) = 97 (0x61) */
+    U0DLL = 0x61;
+    U0DLM = 0x00;
+
+    /* Step 4: Disable DLAB, set 8-bit, no parity, 1 stop bit (8N1) */
+    U0LCR = 0x03;
+
+    /* Step 5: Enable FIFO and reset RX/TX buffers */
+    U0FCR = 0x07;
+}
+
+/**
+ * UART0_SendChar - Sends a single character (polling)
+ */
+void UART0_SendChar(char c)
+{
+    /* Wait until Transmit Holding Register (THR) is empty (bit 5 of LSR) */
+    while (!(U0LSR & (1 << 5)));
+    U0THR = c;
+}
+
+/**
+ * UART0_ReceiveChar - Receives a single character (polling)
+ */
+char UART0_ReceiveChar(void)
+{
+    /* Wait for Receiver Data Ready (RDR) (bit 0 of LSR) */
+    while (!(U0LSR & (1 << 0)));
+    return U0RBR;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | TXD0/RXD0 selection (bits 3:0 = 0101)| `(0x5 << 0)`    |
+| U0LCR    | 0xE000C00C  | Line Control (DLAB, Data bits, Parity)| `0x83` / `0x03` |
+| U0DLL    | 0xE000C000  | Baud rate divisor LSB                | `0x61`          |
+| U0DLM    | 0xE000C004  | Baud rate divisor MSB                | `0x00`          |
+| U0LSR    | 0xE000C014  | Line Status (Check THRE and RDR bits)| Status Read     |
+| U0FCR    | 0xE000C008  | FIFO Control (Enable + Reset)        | `0x07`          |
+
+**Manual Reference:**
+6. The rate counter is loaded into U0DLM/ U0DLL and the baud-rate will be switched to 
+normal operation. After setting the U0DLM/U0DLL the end of auto-baud interrupt 
+U0IIR ABEOInt will be set, if enabled. The U0RSR will now continue receiving the 
+remaining bits of the  A/a" character.
+ 
+10.3.14 UA...
+
+----------------------------------------
+
+### Query: Give only register explanation, no code
+**Status:** success
+**Time:** 47.05s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'give only register explanation, no code'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+No specific board detected. Please specify a board or valid pins....
+
+---
+**Manual Reference:**
+No specific board detected. Please specify a board or valid pins....
+
+----------------------------------------
+
+### Query: Generate PWM signal based on ADC input
+**Status:** success
+**Time:** 47.14s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'generate pwm signal based on adc input'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control of the relationship of the 
+resolution of the timer versus the maximum time before the timer overflows. The PWM 
+Prescale Counter is incremented on every PCLK. When it reaches the value stored in the...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void PWM_Init(void)
+{
+    /* Step 1: Select PWM1 function on P0.0 */
+    PINSEL0 = (PINSEL0 & ~(0x3 << 0)) | (0x2 << 0);
+    PWMPR = 0;
+    PWMMR0 = 1000;
+    PWMMR1 = 500;
+    PWMMCR = (1 << 1);
+    PWMPCR = (1 << 9);
+    PWMLER = (1 << 0) | (1 << 1);
+    PWMTCR = (1 << 0) | (1 << 3);
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | Pin function select (bits 1:0 = PWM1)| `(0x2 << 0)`    |
+| PWMPR    | 0xE001400C  | Prescaler - PCLK divider             | `0` (div 1)     |
+| PWMMR0   | 0xE0014018  | Period - TC resets here              | `1000` ticks    |
+| PWMMR1   | 0xE001401C  | Duty cycle - PWM1 clears here        | `500` (50%)     |
+| PWMMCR   | 0xE0014014  | Match control - reset TC on MR0      | `(1 << 1)`      |
+| PWMPCR   | 0xE001404C  | PWM control - enable PWM1 output     | `(1 << 9)`      |
+| PWMLER   | 0xE0014050  | Latch enable - apply MR0 & MR1       | `(1<<0)|(1<<1)` |
+| PWMTCR   | 0xE0014004  | Timer control - enable + PWM mode    | `(1<<0)|(1<<3)` |
+
+**Manual Reference:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control...
+
+----------------------------------------
+
+### Query: If information is missing, explicitly say so
+**Status:** success
+**Time:** 47.07s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'if information is missing, explicitly say so'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+No specific board detected. Please specify a board or valid pins....
+
+---
+**Manual Reference:**
+No specific board detected. Please specify a board or valid pins....
+
+----------------------------------------
+
+
+### Query: Configure interrupt-driven ADC conversion
+**Status:** success
+**Time:** 47.12s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'configure interrupt-driven adc conversion'.**
+
+### 📋 Key Registers Extracted:
+- **0002**: `0000
+ADC0`
+- **0010**: `0000
+ADC1`
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+
+**Summary of Context:**
+If the BURST bit in the ADCR is 0 and the START field contains 010-111, the ADC will 
+start a conversion when a transition occurs on a selected pin or Timer Match signal. The 
+choices include conversion on a specified edge of any of 4 Match signals, or conversion 
+on a specified edge of either of 2 Capture/Match pins. The pin state from the selected pad 
+or the selected Match signal, XORed with ADCR bit 27, is used in the edge detection 
+logic.
+19.5.2 Interrupts
+An interrupt request is asserted ...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+If the BURST bit in the ADCR is 0 and the START field contains 010-111, the ADC will 
+start a conversion when a transition occurs on a selected pin or Timer Match signal. The 
+choices include conversion on a specified edge of any of 4 Match signals, or conversion 
+on a specified edge of either of 2 ...
+
+----------------------------------------
+
+### Query: Read multiple ADC channels sequentially
+**Status:** success
+**Time:** 47.13s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'read multiple adc channels sequentially'.**
+
+### 📋 Key Registers Extracted:
+- **AD0DR6**: `0xE006 0028`
+- **E003**: `402C
+AD0D`
+- **0100**: `0xE003 400C`
+- **AD0INTEN**: `0xE006 000C`
+- **0001**: `0xE003 4000`
+- **AD0CR**: `0xE006 0000`
+- **AD0GDR**: `0xE006 0004`
+- **0000**: `0xE003 4030`
+- **AD0STAT**: `0xE006 0030`
+
+**Summary of Context:**
+AD0DR6
+0xE006 0028
+ADDR7 A/D Channel 7 Data Register. This register contains the 
+result of the most recent conversion completed on 
+channel 7.
+RO NA 0xE003 402C
+AD0DR7
+0xE006 002C
+
+19.4.1 A/D Control Register  (AD0CR - 0xE003 4000 and AD1CR - 
+0xE006 0000)
+ 
+
+Bit Symbol Value Description Reset 
+value
+7:0 SEL Selects which of the AD0. 7:0/AD1.7:0 pins is (are) to be sampled and converted. For 
+AD0, bit 0 selects Pin AD0.0, and bit 7 selects pin AD0.7. In software-controlled mode, 
+only one of th...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void ADC_Init(void)
+{
+    /* Step 1: Configure P0.28 as AD0.1 */
+    PINSEL1 = (PINSEL1 & ~(0x3 << 24)) | (0x1 << 24);
+
+    /* Step 2: Configure AD0CR
+       - Channel AD0.1 (bit 1)
+       - CLKDIV: 13 (example for 60MHz PCLK -> 60/14 = 4.28MHz <= 4.5MHz)
+       - PDN: 1 (bit 21, Power on) */
+    AD0CR = (1 << 1) | (13 << 8) | (1 << 21);
+
+    /* Step 3: Stabilization delay */
+    for (int i = 0; i < 1000; i++);
+}
+
+unsigned int ADC_Read(void)
+{
+    /* Clear previous start bits */
+    AD0CR &= ~(7 << 24);
+
+    /* Start conversion (bit 24) */
+    AD0CR |= (1 << 24);
+
+    /* Wait for DONE (bit 31) */
+    while (!(AD0DR1 & (1 << 31)));
+
+    /* Stop conversion (clear start bits) */
+    AD0CR &= ~(7 << 24);
+
+    /* Read result (bits 15:6) */
+    return (AD0DR1 >> 6) & 0x3FF;
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL1  | 0xE002C004  | P0.28 to AD0.1 (bits 25:24 = 01)     | `(0x1 << 24)`   |
+| AD0CR    | 0xE0034000  | ADC Control (Channel, Clock, Power)  | `0x00210D02`    |
+| AD0DR1   | 0xE0034014  | ADC Data Reg 1 (Result + DONE bit)   | Read Only       |
+
+**Manual Reference:**
+AD0DR6
+0xE006 0028
+ADDR7 A/D Channel 7 Data Register. This register contains the 
+result of the most recent conversion completed on 
+channel 7.
+RO NA 0xE003 402C
+AD0DR7
+0xE006 002C
+
+19.4.1 A/D Control Register  (AD0CR - 0xE003 4000 and AD1CR - 
+0xE006 0000)
+ 
+
+Bit Symbol Value Description Reset 
+val...
+
+----------------------------------------
+
+### Query: Build a simple sensor monitoring system using LPC2148
+**Status:** success
+**Time:** 47.13s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'build a simple sensor monitoring system using lpc2148'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+1.1 Introduction
+The LPC2141/2/4/6/8 microcontrollers are based on a 32/16 bit ARM7TDMI-S CPU with 
+real-time emulation and embedded trace support, that combines the microcontroller with 
+embedded high speed flash memory ranging from 32 kB to 512 kB. A 128-bit wide 
+memory interface and a unique accelerator architecture enable 32-bit code execution at 
+the maximum clock rate. For critical code size applications, the alternative 16-bit Thumb 
+mode reduces code by more than 30 % with minimal perfo...
+
+---
+**Manual Reference:**
+1.1 Introduction
+The LPC2141/2/4/6/8 microcontrollers are based on a 32/16 bit ARM7TDMI-S CPU with 
+real-time emulation and embedded trace support, that combines the microcontroller with 
+embedded high speed flash memory ranging from 32 kB to 512 kB. A 128-bit wide 
+memory interface and a unique accelerator architecture enable 32-bit code execution at 
+the maximum clock rate. For critical code size applications, the alternative 16-bit Thumb 
+mode reduces code by more than 30 % with minimal performance penalty.
+Due to their tiny size and low power consumption, LPC2141/2/4/6/8 are ideal for 
+applications where miniaturization is a key requirement, such as access control and 
+point-of-sale. A blend of serial communications interfaces ranging from a USB 2.0 Full 
+Speed device, multiple UARTs, SPI, SSP to I
+2Cs, and on-chip SRAM of 8 kB up to 40 kB, 
+make these devices very well suited for communication gateways and protocol 
+converters, soft modems, voice recognition and low end imaging, p...
+
+----------------------------------------
+
+
+## LEVEL 6: Retrieval Stress Test
+==============================
+
+### Query: Pin mapping for PWM5
+**Status:** success
+**Time:** 0.08s
+
+**Response:**
+### 📍 Pin Mapping for LPC2148
+
+The following pin mappings are verified for PWM channels on LPC2148:
+
+| Port Pin | Function   | PINSEL Register | Bit positions | Bit value |
+|----------|------------|-----------------|---------------|-----------|
+| P0.0     | PWM1       | PINSEL0         | bits [1:0]    | `10` (2)  |
+| P0.7     | PWM2       | PINSEL0         | bits [15:14]  | `10` (2)  |
+| P0.21    | PWM5       | PINSEL1         | bits [11:10]  | `01` (1)  |
+
+**Note:** You specifically asked for **PWM5**. See the corresponding row above.
+
+----------------------------------------
+
+### Query: Address of PWMPCR register
+**Status:** success
+**Time:** 47.13s
+
+**Response:**
+### 🛠️ Technical Fallback (System Knowledge)
+
+**Manual context was successfully retrieved for 'address of pwmpcr register'.**
+
+Detailed register names not extracted from raw text.
+
+**Summary of Context:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control of the relationship of the 
+resolution of the timer versus the maximum time before the timer overflows. The PWM 
+Prescale Counter is incremented on every PCLK. When it reaches the value stored in the...
+
+---
+**Verified C Implementation:**
+```c
+#include <lpc214x.h>
+
+void PWM_Init(void)
+{
+    /* Step 1: Select PWM1 function on P0.0 */
+    PINSEL0 = (PINSEL0 & ~(0x3 << 0)) | (0x2 << 0);
+    PWMPR = 0;
+    PWMMR0 = 1000;
+    PWMMR1 = 500;
+    PWMMCR = (1 << 1);
+    PWMPCR = (1 << 9);
+    PWMLER = (1 << 0) | (1 << 1);
+    PWMTCR = (1 << 0) | (1 << 3);
+}
+```
+
+**Register Reference:**
+| Register | Address     | Role                                 | Value used      |
+|----------|-------------|--------------------------------------|-----------------|
+| PINSEL0  | 0xE002C000  | Pin function select (bits 1:0 = PWM1)| `(0x2 << 0)`    |
+| PWMPR    | 0xE001400C  | Prescaler - PCLK divider             | `0` (div 1)     |
+| PWMMR0   | 0xE0014018  | Period - TC resets here              | `1000` ticks    |
+| PWMMR1   | 0xE001401C  | Duty cycle - PWM1 clears here        | `500` (50%)     |
+| PWMMCR   | 0xE0014014  | Match control - reset TC on MR0      | `(1 << 1)`      |
+| PWMPCR   | 0xE001404C  | PWM control - enable PWM1 output     | `(1 << 9)`      |
+| PWMLER   | 0xE0014050  | Latch enable - apply MR0 & MR1       | `(1<<0)|(1<<1)` |
+| PWMTCR   | 0xE0014004  | Timer control - enable + PWM mode    | `(1<<0)|(1<<3)` |
+
+**Manual Reference:**
+The 32-bit PWM Prescale Register specifies the maximum value for the PWM Prescale 
+Counter.
+16.4.5 PWM Prescale Counter re gister (PWMPC - 0xE001 4010)
+The 32-bit PWM Prescale Counter controls division of PCLK by some constant value 
+before it is applied to the PWM Timer Counter. This allows control...
+
+----------------------------------------
+

@@ -1,0 +1,122 @@
+[
+  {
+    "id": "PERF-001",
+    "question": "Configure ADC channel 0 on LPC2148.",
+    "domain": "performance",
+    "category": "warm_start_peripheral",
+    "expected_keywords": ["AD0CR", "PDN", "CLKDIV", "START"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "Warm-start: model already loaded. Measures pure deterministic template latency. Target <2s."
+  },
+  {
+    "id": "PERF-002",
+    "question": "Design an RTOS obstacle detection system.",
+    "domain": "performance",
+    "category": "warm_start_architecture",
+    "expected_keywords": ["task", "queue", "priority", "acquisition"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "Architecture synthesis without RAG. Target <2s."
+  },
+  {
+    "id": "PERF-003",
+    "question": "Build sensor fusion architecture using MPU6050 and GPS.",
+    "domain": "performance",
+    "category": "multi_domain_synthesis",
+    "expected_keywords": ["IMU", "GPS", "queue", "fusion"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "Multi-domain architecture synthesis (new blueprint). Target <3s."
+  },
+  {
+    "id": "PERF-004",
+    "question": "Generate FreeRTOS architecture for autonomous robot.",
+    "domain": "performance",
+    "category": "warm_start_architecture",
+    "expected_keywords": ["task", "motor", "queue", "priority"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "Autonomous robot blueprint (new). Target <2s."
+  },
+  {
+    "id": "PERF-005",
+    "question": "Design queue-based UART communication system.",
+    "domain": "performance",
+    "category": "isr_pipeline_synthesis",
+    "expected_keywords": ["ISR", "queue", "xQueueSendFromISR", "UART"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "ISR-to-task pipeline blueprint (new). Target <2s."
+  },
+  {
+    "id": "PERF-006",
+    "question": "Why should ISRs remain short in RTOS systems?",
+    "domain": "performance",
+    "category": "degraded_mode_knowledge",
+    "expected_keywords": ["latency", "jitter", "scheduling", "interrupt"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "RTOS intent — bypasses RAG entirely. Tests degraded-mode deterministic execution. Target <1s."
+  },
+  {
+    "id": "PERF-007",
+    "question": "Configure ADCSRA register on LPC2148.",
+    "domain": "performance",
+    "category": "semantic_trap_rejection",
+    "expected_keywords": ["AVR", "Architecture Mismatch", "ARM7"],
+    "must_be_rejected": true,
+    "must_not_contain": ["ADCSRA ="],
+    "notes": "Tier 1 trap (keyword). Should reject in <50ms without any RAG or embedding call."
+  },
+  {
+    "id": "PERF-008",
+    "question": "Can ADC baud rate affect PWM timing on LPC2148?",
+    "domain": "performance",
+    "category": "semantic_trap_rejection",
+    "expected_keywords": ["Invalid", "baud", "CLKDIV"],
+    "must_be_rejected": true,
+    "must_not_contain": [],
+    "notes": "Tier 1 cross-domain trap. Should reject <50ms."
+  },
+  {
+    "id": "PERF-009",
+    "question": "What registers does MPU6050 use for I2C communication?",
+    "domain": "performance",
+    "category": "knowledge_depth",
+    "expected_keywords": ["0x68", "PWR_MGMT_1", "0x6B", "ACCEL_XOUT_H"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "Tests new MPU6050 register knowledge entry. Sensor intent — no RAG. Target <1s."
+  },
+  {
+    "id": "PERF-010",
+    "question": "How do I read temperature from LM35 using LPC2148 ADC?",
+    "domain": "performance",
+    "category": "knowledge_depth",
+    "expected_keywords": ["10 mV", "ADC", "VREF", "formula"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "Tests new LM35 conversion formula knowledge entry. Target <1s."
+  },
+  {
+    "id": "PERF-011",
+    "question": "How do you safely send data from an ISR to a FreeRTOS task?",
+    "domain": "performance",
+    "category": "knowledge_depth",
+    "expected_keywords": ["xQueueSendFromISR", "portYIELD_FROM_ISR", "xHigherPriorityTaskWoken"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "Tests new ISR-safe API knowledge entry. Target <1s."
+  },
+  {
+    "id": "PERF-012",
+    "question": "Explain priority inversion in RTOS.",
+    "domain": "performance",
+    "category": "rtos_reasoning",
+    "expected_keywords": ["priority", "mutex", "semaphore"],
+    "must_be_rejected": false,
+    "must_not_contain": [],
+    "notes": "RTOS reasoning — no RAG. Tests warm-path deterministic knowledge. Target <1s."
+  }
+]

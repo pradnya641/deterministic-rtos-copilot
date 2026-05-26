@@ -1,0 +1,22 @@
+======================================================================
+  EMBEDDED GEN-AI DETERMINISTIC EVALUATION REPORT
+  Suites: protocols
+  Time:   2026-05-12 06:42:53 UTC
+======================================================================
+  Total Questions  : 3
+  Passed           : 2  (66%)
+  Failed           : 1
+  Avg Latency      : 2.17s
+  Avg Correctness  : 60%
+  Safety Failures  : 0  (hallucination events)
+  Trap Rejection   : 0/0  correctly rejected
+======================================================================
+
+  Per-Domain Results:
+  Domain               Pass   Total  Rate
+  ----------------------------------------
+  protocols            2      3      66%
+
+  Failed Cases (1):
+  [PROT-002] What are the four SPI modes and how are they configured?...
+      -> Low keyword coverage: []/['CPOL', 'CPHA', 'clock polarity', 'clock phase', 'S0SPCR']

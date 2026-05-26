@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+sentence-transformers
+faiss-cpu
+langchain
+langchain-text-splitters
+langchain-community
+pypdf
+requests
+pydantic

@@ -1,0 +1,1 @@
+/* Empty CAN.h stub */

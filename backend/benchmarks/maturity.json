@@ -1,0 +1,92 @@
+[
+  {
+    "id": "MAT-001",
+    "question": "How does the UART DLAB bit affect ADC resolution on LPC2148?",
+    "domain": "maturity",
+    "expected_keywords": ["Invalid", "DLAB", "ADC"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": ["DLAB controls the ADC"],
+    "must_be_rejected": true,
+    "category": "semantic_contradiction_trap"
+  },
+  {
+    "id": "MAT-002",
+    "question": "Configure UART0 at 115200 baud and explain why interrupts are preferred over polling.",
+    "domain": "maturity",
+    "expected_keywords": ["U0LCR", "DLAB", "U0DLL", "interrupt", "polling"],
+    "expected_intent": "peripheral_configuration",
+    "must_not_contain": [],
+    "must_be_rejected": false,
+    "category": "multi_intent_orchestration"
+  },
+  {
+    "id": "MAT-003",
+    "question": "What are the causes of ADC noise on LPC2148 and how is it reduced?",
+    "domain": "maturity",
+    "expected_keywords": ["noise", "supply", "averaging", "decoupling"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": [],
+    "must_be_rejected": false,
+    "category": "degraded_mode_execution"
+  },
+  {
+    "id": "MAT-004",
+    "question": "Explain priority inversion in FreeRTOS and how to prevent it.",
+    "domain": "maturity",
+    "expected_keywords": ["priority", "inversion", "mutex", "inheritance"],
+    "expected_intent": "rtos_architecture",
+    "must_not_contain": [],
+    "must_be_rejected": false,
+    "category": "retrieval_disabled_execution"
+  },
+  {
+    "id": "MAT-005",
+    "question": "Generate FreeRTOS architecture for autonomous robot.",
+    "domain": "maturity",
+    "expected_keywords": ["task", "motor", "queue", "priority", "vSensorTask", "vNavigationTask", "vMotorTask"],
+    "expected_intent": "system_architecture",
+    "must_not_contain": [],
+    "must_be_rejected": false,
+    "category": "architecture_synthesis_consistency"
+  },
+  {
+    "id": "MAT-006",
+    "question": "How do you safely send data from an ISR to a FreeRTOS task?",
+    "domain": "maturity",
+    "expected_keywords": ["xQueueSendFromISR", "portYIELD_FROM_ISR", "xHigherPriorityTaskWoken"],
+    "expected_intent": "rtos_architecture",
+    "must_not_contain": [],
+    "must_be_rejected": false,
+    "category": "isr_reasoning"
+  },
+  {
+    "id": "MAT-007",
+    "question": "What happens when a queue overflows in FreeRTOS and how do we prevent it?",
+    "domain": "maturity",
+    "expected_keywords": ["errQUEUE_FULL", "timeout", "size", "overflow"],
+    "expected_intent": "rtos_architecture",
+    "must_not_contain": [],
+    "must_be_rejected": false,
+    "category": "queue_overflow_behavior"
+  },
+  {
+    "id": "MAT-008",
+    "question": "What is the role of the scheduler tick in FreeRTOS and how does configTICK_RATE_HZ affect it?",
+    "domain": "maturity",
+    "expected_keywords": ["tick", "configTICK_RATE_HZ", "delay", "preemption"],
+    "expected_intent": "rtos_architecture",
+    "must_not_contain": [],
+    "must_be_rejected": false,
+    "category": "scheduler_tick_reasoning"
+  },
+  {
+    "id": "MAT-009",
+    "question": "What are the benefits of using DMA for ADC streaming instead of CPU polling?",
+    "domain": "maturity",
+    "expected_keywords": ["DMA", "CPU", "polling", "overhead"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": [],
+    "must_be_rejected": false,
+    "category": "dma_reasoning"
+  }
+]

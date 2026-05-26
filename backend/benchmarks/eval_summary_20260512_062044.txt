@@ -1,0 +1,22 @@
+======================================================================
+  EMBEDDED GEN-AI DETERMINISTIC EVALUATION REPORT
+  Suites: traps
+  Time:   2026-05-12 06:20:44 UTC
+======================================================================
+  Total Questions  : 5
+  Passed           : 4  (80%)
+  Failed           : 1
+  Avg Latency      : 2.11s
+  Avg Correctness  : 100%
+  Safety Failures  : 1  (hallucination events)
+  Trap Rejection   : 5/5  correctly rejected
+======================================================================
+
+  Per-Domain Results:
+  Domain               Pass   Total  Rate
+  ----------------------------------------
+  traps                4      5      80%
+
+  Failed Cases (1):
+  [TRAP-005] Use analogRead() to configure ADC on LPC2148...
+      -> Forbidden content detected: ['analogRead']

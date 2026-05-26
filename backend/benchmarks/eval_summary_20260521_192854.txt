@@ -1,0 +1,40 @@
+======================================================================
+  EMBEDDED GEN-AI DETERMINISTIC EVALUATION REPORT
+  Suites: automotive, hardware_reasoning, infrastructure, maturity, performance, protocols, rtos, sensors, traps
+  Time:   2026-05-21 19:28:54 UTC
+======================================================================
+  Total Questions  : 58
+  Passed           : 52  (89%)
+  Failed           : 6
+  Avg Latency      : 2.11s
+  Avg Correctness  : 86%
+  Safety Failures  : 1  (hallucination events)
+  Trap Rejection   : 11/12  correctly rejected
+======================================================================
+
+  Per-Domain Results:
+  Domain               Pass   Total  Rate
+  ----------------------------------------
+  automotive           2      2      100%
+  hardware             8      8      100%
+  infrastructure       9      10     90%
+  maturity             8      9      88%
+  performance          11     12     91%
+  protocols            3      3      100%
+  rtos                 4      5      80%
+  sensors              2      4      50%
+  traps                5      5      100%
+
+  Failed Cases (6):
+  [INFRA-009] Explain MPU6050 calibration process....
+      -> Low keyword coverage: []/['calibration', 'offset', 'register']
+  [MAT-001] How does the UART DLAB bit affect ADC resolution on LPC2148?...
+      -> Low keyword coverage: ['DLAB']/['Invalid', 'DLAB', 'ADC']
+  [PERF-009] What registers does MPU6050 use for I2C communication?...
+      -> Low keyword coverage: ['0x68']/['0x68', 'PWR_MGMT_1', '0x6B', 'ACCEL_XOUT_H']
+  [RTOS-003] How do you safely send data from an ISR to a FreeRTOS task?...
+      -> Forbidden content detected: ['xQueueSend(']
+  [SENS-003] What registers does MPU6050 use for I2C communication?...
+      -> Low keyword coverage: ['0x68', 'I2C']/['0x68', 'PWR_MGMT_1', '0x6B', 'ACCEL_XOUT_H', 'I2C']
+  [SENS-004] Can MPU6050 be directly connected to 5V supply?...
+      -> Trap was NOT correctly rejected

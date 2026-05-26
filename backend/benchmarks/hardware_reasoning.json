@@ -1,0 +1,74 @@
+[
+  {
+    "id": "HW-001",
+    "question": "What is the resolution of the ADC in LPC2148 and how is it calculated?",
+    "domain": "hardware",
+    "expected_keywords": ["10-bit", "1024", "VREF", "LSB"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": ["Arduino", "ADCSRA", "analogRead"],
+    "category": "core_concept"
+  },
+  {
+    "id": "HW-002",
+    "question": "What is the role of the AD0CR register?",
+    "domain": "hardware",
+    "expected_keywords": ["AD0CR", "SEL", "CLKDIV", "PDN", "START"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": ["ADMUX", "ADCSRA"],
+    "category": "register_knowledge"
+  },
+  {
+    "id": "HW-003",
+    "question": "What does the DONE bit indicate in ADC conversion?",
+    "domain": "hardware",
+    "expected_keywords": ["DONE", "conversion", "complete"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": [],
+    "category": "bit_behavior"
+  },
+  {
+    "id": "HW-004",
+    "question": "Why must the ADC clock be limited to 4.5 MHz?",
+    "domain": "hardware",
+    "expected_keywords": ["4.5 MHz", "SAR", "CLKDIV", "PCLK"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": [],
+    "category": "timing_constraint"
+  },
+  {
+    "id": "HW-005",
+    "question": "What happens if the ADC PDN bit is not set?",
+    "domain": "hardware",
+    "expected_keywords": ["PDN", "power", "conversion"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": [],
+    "category": "edge_case"
+  },
+  {
+    "id": "HW-006",
+    "question": "What happens if PWMMR1 > PWMMR0?",
+    "domain": "hardware",
+    "expected_keywords": ["MR0", "MR1", "duty", "match"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": [],
+    "category": "edge_case"
+  },
+  {
+    "id": "HW-007",
+    "question": "Why does UART require DLAB to be cleared after setting baud rate?",
+    "domain": "hardware",
+    "expected_keywords": ["DLAB", "UxLCR", "baud", "divisor"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": [],
+    "category": "register_sequence"
+  },
+  {
+    "id": "HW-008",
+    "question": "What is the function of the PINSEL register in LPC2148?",
+    "domain": "hardware",
+    "expected_keywords": ["PINSEL", "multiplexing", "peripheral", "GPIO"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": ["DDR", "PORTB"],
+    "category": "core_concept"
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "PROT-001",
+    "question": "Explain UART frame structure and DLAB configuration in LPC2148.",
+    "domain": "protocols",
+    "expected_keywords": ["start bit", "stop bit", "DLAB", "baud", "UxLCR"],
+    "expected_intent": "communication_design",
+    "must_not_contain": ["analog", "ADC", "PWM"],
+    "category": "uart_basics"
+  },
+  {
+    "id": "PROT-002",
+    "question": "What are the four SPI modes and how are they configured?",
+    "domain": "protocols",
+    "expected_keywords": ["CPOL", "CPHA", "clock polarity", "clock phase", "S0SPCR"],
+    "expected_intent": "communication_design",
+    "must_not_contain": ["I2C", "SDA", "SCL"],
+    "category": "spi_basics"
+  },
+  {
+    "id": "PROT-003",
+    "question": "How does I2C bus arbitration work in multi-master mode?",
+    "domain": "protocols",
+    "expected_keywords": ["arbitration", "SDA", "SCL", "master", "lost"],
+    "expected_intent": "communication_design",
+    "must_not_contain": ["MISO", "MOSI"],
+    "category": "i2c_basics"
+  }
+]

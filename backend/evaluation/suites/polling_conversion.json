@@ -1,0 +1,10 @@
+[
+  {
+    "name": "polling_to_interrupt",
+    "description": "Verifies that periodic polling loops are successfully converted to VIC interrupt-driven ISR execution topology.",
+    "turns": [
+      "Generate polling sensor architecture",
+      "convert polling to interrupt driven"
+    ]
+  }
+]

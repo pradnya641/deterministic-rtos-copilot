@@ -1,0 +1,33 @@
+======================================================================
+  EMBEDDED COPILOT CONVERSATIONAL EVALUATION REPORT
+  Time:   2026-05-23 11:07:40 UTC
+======================================================================
+  Total Scenarios  : 12
+  Passed Scenarios : 10  (83%)
+  Total Turns      : 29
+  Passed Turns     : 27  (93%)
+======================================================================
+
+  Scenario Results:
+  Scenario ID     Description                         Result   Passed Turns
+  ----------------------------------------------------------------------
+  CONV-001        Multi-turn UART queue expansion     FAIL     2/3
+  CONV-002        ADC pipeline conversion             PASS     3/3
+  CONV-003        GPS+GSM telemetry with reliabilit   PASS     3/3
+  CONV-004        Typo recovery sequence              FAIL     2/3
+  CONV-005        CAN telemetry with DMA skeleton     PASS     3/3
+  CONV-006        FreeRTOS v10 stream buffer reject   PASS     2/2
+  CONV-007        Arduino API rejection in multi-tu   PASS     2/2
+  CONV-008        Peripheral conflict detection       PASS     2/2
+  CONV-009        Priority change with RMS check      PASS     2/2
+  CONV-010        Stack reduction safety              PASS     2/2
+  CONV-011        Architecture reset mid-conversati   PASS     2/2
+  CONV-012        Multi-peripheral SPI + ADC          PASS     2/2
+
+  Failed Scenario Details:
+  [CONV-001] Multi-turn UART queue expansion
+    Turn 3 Query: "add overflow monitoring"
+      -> Missing expected diff elements: ['uxQueueMessagesWaiting']
+  [CONV-004] Typo recovery sequence
+    Turn 3 Query: "add ovflow prot"
+      -> Missing expected diff elements: ['uxQueueMessagesWaiting']

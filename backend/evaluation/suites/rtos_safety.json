@@ -1,0 +1,11 @@
+[
+  {
+    "name": "rtos_safety_isr_block",
+    "description": "Verifies that blocking FreeRTOS API calls inside ISR trigger RTOS safety validation rejection and roll back cleanly.",
+    "turns": [
+      "Generate UART ISR architecture",
+      "use xSemaphoreTake inside ISR",
+      "increase queue depth to 32"
+    ]
+  }
+]

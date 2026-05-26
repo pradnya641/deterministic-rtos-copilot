@@ -1,0 +1,39 @@
+[
+  {
+    "id": "SENS-001",
+    "question": "How does the HC-SR04 ultrasonic sensor work and how do I interface it with LPC2148?",
+    "domain": "sensors",
+    "expected_keywords": ["TRIG", "ECHO", "10 us", "Timer", "level shifter"],
+    "expected_intent": "sensor_integration",
+    "must_not_contain": ["pulseIn("],
+    "category": "sensor_interface"
+  },
+  {
+    "id": "SENS-002",
+    "question": "How do I read temperature from LM35 using LPC2148 ADC?",
+    "domain": "sensors",
+    "expected_keywords": ["LM35", "10 mV", "ADC", "VREF", "formula"],
+    "expected_intent": "sensor_integration",
+    "must_not_contain": [],
+    "category": "sensor_interface"
+  },
+  {
+    "id": "SENS-003",
+    "question": "What registers does MPU6050 use for I2C communication?",
+    "domain": "sensors",
+    "expected_keywords": ["0x68", "PWR_MGMT_1", "0x6B", "ACCEL_XOUT_H", "I2C"],
+    "expected_intent": "sensor_integration",
+    "must_not_contain": [],
+    "category": "sensor_registers"
+  },
+  {
+    "id": "SENS-004",
+    "question": "Can MPU6050 be directly connected to 5V supply?",
+    "domain": "sensors",
+    "expected_keywords": ["3.3V", "damage", "level shifter"],
+    "expected_intent": "sensor_integration",
+    "must_not_contain": [],
+    "must_be_rejected": true,
+    "category": "voltage_safety"
+  }
+]

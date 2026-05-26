@@ -1,0 +1,12 @@
+[
+  {
+    "name": "rms_latency_stack",
+    "description": "Verifies priority optimizations for RMS scheduling, task latency reduction, and stack budget adjustments.",
+    "turns": [
+      "Generate ADC Acquisition + Moving Average Filter",
+      "optimize priorities for RMS scheduling",
+      "reduce latency",
+      "reduce stack"
+    ]
+  }
+]

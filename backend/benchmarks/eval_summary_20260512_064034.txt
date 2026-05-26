@@ -1,0 +1,25 @@
+======================================================================
+  EMBEDDED GEN-AI DETERMINISTIC EVALUATION REPORT
+  Suites: protocols, automotive
+  Time:   2026-05-12 06:40:34 UTC
+======================================================================
+  Total Questions  : 5
+  Passed           : 3  (60%)
+  Failed           : 2
+  Avg Latency      : 2.15s
+  Avg Correctness  : 64%
+  Safety Failures  : 0  (hallucination events)
+  Trap Rejection   : 0/0  correctly rejected
+======================================================================
+
+  Per-Domain Results:
+  Domain               Pass   Total  Rate
+  ----------------------------------------
+  automotive           2      2      100%
+  protocols            1      3      33%
+
+  Failed Cases (2):
+  [PROT-002] What are the four SPI modes and how are they configured?...
+      -> Low keyword coverage: []/['CPOL', 'CPHA', 'clock polarity', 'clock phase', 'S0SPCR']
+  [PROT-003] How does I2C bus arbitration work in multi-master mode?...
+      -> Low keyword coverage: ['arbitration', 'master']/['arbitration', 'SDA', 'SCL', 'master', 'lost']

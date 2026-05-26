@@ -1,0 +1,277 @@
+[
+  {
+    "id": "CONV-001",
+    "description": "Multi-turn UART queue expansion",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "Generate UART ISR pipeline",
+        "expected_modification_type": null,
+        "expected_keywords": ["xQueueSendFromISR", "VICVectAddr", "U0RBR"],
+        "must_not_contain": ["xQueueSend(xR", "NVIC_EnableIRQ"]
+      },
+      {
+        "turn": 2,
+        "query": "make queue bigger",
+        "expected_modification_type": "increase_queue_depth",
+        "expected_diff_contains": ["xQueueCreate("],
+        "must_not_contain": ["ADCSRA", "analogWrite"]
+      },
+      {
+        "turn": 3,
+        "query": "add overflow monitoring",
+        "expected_modification_type": "add_overflow_protection",
+        "expected_diff_contains": ["uxQueueMessagesWaiting"],
+        "architecture_preserved": ["UART0_IRQHandler", "VICVectAddr"]
+      }
+    ]
+  },
+  {
+    "id": "CONV-002",
+    "description": "ADC pipeline conversion",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "Generate ADC acquisition and filtering pipeline",
+        "expected_modification_type": null,
+        "expected_keywords": ["AD0CR", "AD0DR1", "vAcquisitionTask"],
+        "must_not_contain": ["analogRead"]
+      },
+      {
+        "turn": 2,
+        "query": "replace polling with interrupt",
+        "expected_modification_type": "convert_to_interrupt",
+        "expected_diff_contains": ["xSemaphoreTake", "xSemaphoreGiveFromISR"],
+        "must_not_contain": ["while"]
+      },
+      {
+        "turn": 3,
+        "query": "optimize latency",
+        "expected_modification_type": "optimize_latency",
+        "expected_diff_contains": ["xTaskCreate"],
+        "must_not_contain": []
+      }
+    ]
+  },
+  {
+    "id": "CONV-003",
+    "description": "GPS+GSM telemetry with reliability",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "generate GPS GSM telemetry architecture",
+        "expected_modification_type": null,
+        "expected_keywords": ["UART0", "UART1", "GPS", "GSM"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 2,
+        "query": "add watchdog",
+        "expected_modification_type": "add_watchdog",
+        "expected_diff_contains": ["vWatchdogTask", "WDMOD", "WDFEED"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 3,
+        "query": "add retry logic",
+        "expected_modification_type": "add_retry_logic",
+        "expected_diff_contains": ["ucRetries", "xQueueSend"],
+        "must_not_contain": []
+      }
+    ]
+  },
+  {
+    "id": "CONV-004",
+    "description": "Typo recovery sequence",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "uart isr usng q",
+        "expected_modification_type": null,
+        "expected_keywords": ["xQueueSendFromISR", "VICVectAddr"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 2,
+        "query": "make q biggr",
+        "expected_modification_type": "increase_queue_depth",
+        "expected_diff_contains": ["xQueueCreate"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 3,
+        "query": "add ovflow prot",
+        "expected_modification_type": "add_overflow_protection",
+        "expected_diff_contains": ["uxQueueMessagesWaiting"],
+        "must_not_contain": []
+      }
+    ]
+  },
+  {
+    "id": "CONV-005",
+    "description": "CAN telemetry with DMA skeleton",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "generate CAN bus telemetry architecture",
+        "expected_modification_type": null,
+        "expected_keywords": ["CAN1MOD", "CAN1BTR", "CAN_IRQHandler"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 2,
+        "query": "increase queue depth",
+        "expected_modification_type": "increase_queue_depth",
+        "expected_diff_contains": ["xQueueCreate"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 3,
+        "query": "add DMA-ready path",
+        "expected_modification_type": "add_dma_ready",
+        "expected_diff_contains": ["DMA_BUFFER_SIZE", "ping-pong"],
+        "must_not_contain": []
+      }
+    ]
+  },
+  {
+    "id": "CONV-006",
+    "description": "FreeRTOS v10 stream buffer rejection",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "Generate UART ISR pipeline",
+        "expected_modification_type": null,
+        "expected_keywords": ["UART0", "xRxQueue"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 2,
+        "query": "use a stream buffer instead of a queue",
+        "expected_modification_type": "REJECTED:stream buffer",
+        "expected_keywords": ["Stream buffers require FreeRTOS v10+"],
+        "must_not_contain": []
+      }
+    ]
+  },
+  {
+    "id": "CONV-007",
+    "description": "Arduino API rejection in multi-turn",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "Generate UART ISR pipeline",
+        "expected_modification_type": null,
+        "expected_keywords": ["UART0"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 2,
+        "query": "read UART using analogRead()",
+        "expected_modification_type": null,
+        "expected_keywords": ["Invalid", "analogRead"],
+        "must_not_contain": []
+      }
+    ]
+  },
+  {
+    "id": "CONV-008",
+    "description": "Peripheral conflict detection",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "Generate UART ISR pipeline",
+        "expected_modification_type": null,
+        "expected_keywords": ["UART0"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 2,
+        "query": "Configure UART0 for task vTelemetryTask",
+        "expected_modification_type": null,
+        "expected_keywords": ["Peripheral conflict", "UART0"],
+        "must_not_contain": []
+      }
+    ]
+  },
+  {
+    "id": "CONV-009",
+    "description": "Priority change with RMS check",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "generate GPS GSM telemetry architecture",
+        "expected_modification_type": null,
+        "expected_keywords": ["GPS", "GSM"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 2,
+        "query": "increase priority",
+        "expected_modification_type": "change_priority",
+        "expected_diff_contains": ["xTaskCreate"],
+        "must_not_contain": []
+      }
+    ]
+  },
+  {
+    "id": "CONV-010",
+    "description": "Stack reduction safety",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "Generate UART ISR pipeline",
+        "expected_modification_type": null,
+        "expected_keywords": ["UART0"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 2,
+        "query": "reduce stack",
+        "expected_modification_type": "reduce_stack",
+        "expected_diff_contains": ["xTaskCreate"],
+        "must_not_contain": []
+      }
+    ]
+  },
+  {
+    "id": "CONV-011",
+    "description": "Architecture reset mid-conversation",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "Generate UART ISR pipeline",
+        "expected_modification_type": null,
+        "expected_keywords": ["UART0"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 2,
+        "query": "generate ADC acquisition and filtering pipeline",
+        "expected_modification_type": null,
+        "expected_keywords": ["ADC", "AD0CR"],
+        "must_not_contain": ["UART0", "U0RBR"]
+      }
+    ]
+  },
+  {
+    "id": "CONV-012",
+    "description": "Multi-peripheral SPI + ADC",
+    "turns": [
+      {
+        "turn": 1,
+        "query": "generate SPI Sensor Pipeline",
+        "expected_modification_type": null,
+        "expected_keywords": ["SPI", "S0SPCR"],
+        "must_not_contain": []
+      },
+      {
+        "turn": 2,
+        "query": "add DMA-ready path",
+        "expected_modification_type": "add_dma_ready",
+        "expected_diff_contains": ["DMA_BUFFER_SIZE"],
+        "must_not_contain": []
+      }
+    ]
+  }
+]

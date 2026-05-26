@@ -1,0 +1,55 @@
+[
+  {
+    "id": "PROT-001",
+    "question": "Explain UART frame structure and DLAB configuration in LPC2148.",
+    "domain": "protocols",
+    "category": "uart_basics",
+    "status": "success",
+    "latency_s": 2.22,
+    "answer_snippet": "### ? Communication Insight: UART Frame Structure\n**UART Frame (8N1 = most common):**\n```\n[START][D0][D1][D2][D3][D4][D5][D6][D7][STOP]\n  1 bit  ????? 8 data bits ?????  1 bit\n```\n- Start bit: always LOW.\n- Stop bit: always HIGH.\n- No synchronization clock ? both ends must use identical baud rate.\n-",
+    "scores": {
+      "correctness": 1.0,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  },
+  {
+    "id": "PROT-002",
+    "question": "What are the four SPI modes and how are they configured?",
+    "domain": "protocols",
+    "category": "spi_basics",
+    "status": "success",
+    "latency_s": 2.19,
+    "answer_snippet": "### ?? SPI Configuration\n\n**Verified C Implementation:**\n```c\nPINSEL0 |= 0x5500;  /* SCK, MISO, MOSI */\nS0SPCCR = 8;        /* Clock divider */\nS0SPCR = 0x20;      /* Master mode */\n```\n\n**Rule:** S0SPCCR must be an even number ? 8.",
+    "scores": {
+      "correctness": 0.2,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": false,
+    "issues": [
+      "Low keyword coverage: ['S0SPCR']/['CPOL', 'CPHA', 'clock polarity', 'clock phase', 'S0SPCR']"
+    ]
+  },
+  {
+    "id": "PROT-003",
+    "question": "How does I2C bus arbitration work in multi-master mode?",
+    "domain": "protocols",
+    "category": "i2c_basics",
+    "status": "success",
+    "latency_s": 2.17,
+    "answer_snippet": "### ? Communication Insight: I2C Protocol\n**I2C Key Facts:**\n- 2-wire: SDA (data), SCL (clock).\n- Multi-master, multi-slave.\n- 7-bit addressing (up to 128 devices).\n- Standard: 100 kHz, Fast: 400 kHz, Fast+: 1 MHz.\n\n**Transaction Structure:**\n```\n[START][7-bit ADDR][R/W][ACK][DATA BYTE][ACK][STOP]\n`",
+    "scores": {
+      "correctness": 0.8,
+      "rejection": "N/A",
+      "safety": 1.0,
+      "latency": "OK"
+    },
+    "pass": true,
+    "issues": []
+  }
+]

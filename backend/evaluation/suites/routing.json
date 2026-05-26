@@ -1,0 +1,11 @@
+[
+  {
+    "name": "routing_new_vs_mod",
+    "description": "Verifies that explicit generate requests start fresh architecture and clear previous state.",
+    "turns": [
+      "Generate CAN architecture",
+      "increase queue depth to 64",
+      "Generate UART ISR architecture"
+    ]
+  }
+]

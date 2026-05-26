@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TRAP-001",
+    "question": "Why is baud rate important in ADC configuration?",
+    "domain": "traps",
+    "expected_keywords": ["Invalid", "ADC", "baud"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": ["CLKDIV sets the baud"],
+    "must_be_rejected": true,
+    "category": "cross_domain_trap"
+  },
+  {
+    "id": "TRAP-002",
+    "question": "How does PWM duty cycle affect ADC sampling?",
+    "domain": "traps",
+    "expected_keywords": ["Invalid", "PWM", "ADC"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": ["PWM controls the ADC"],
+    "must_be_rejected": true,
+    "category": "cross_domain_trap"
+  },
+  {
+    "id": "TRAP-003",
+    "question": "Can UART FIFO affect ADC conversion accuracy?",
+    "domain": "traps",
+    "expected_keywords": ["UART", "ADC", "isolated"],
+    "expected_intent": "hardware_reasoning",
+    "must_not_contain": ["UART affects voltage"],
+    "must_be_rejected": true,
+    "category": "cross_domain_trap"
+  },
+  {
+    "id": "TRAP-004",
+    "question": "Configure ADCSRA register for ADC in LPC2148",
+    "domain": "traps",
+    "expected_keywords": ["AVR", "Architecture Mismatch", "ARM7"],
+    "expected_intent": "peripheral_configuration",
+    "must_not_contain": ["ADCSRA = "],
+    "must_be_rejected": true,
+    "category": "wrong_architecture_trap"
+  },
+  {
+    "id": "TRAP-005",
+    "question": "Use analogRead() to configure ADC on LPC2148",
+    "domain": "traps",
+    "expected_keywords": ["Invalid", "Arduino"],
+    "expected_intent": "peripheral_configuration",
+    "must_not_contain": ["analogRead("],
+    "must_be_rejected": true,
+    "category": "wrong_architecture_trap"
+  }
+]

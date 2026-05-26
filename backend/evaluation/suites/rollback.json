@@ -1,0 +1,11 @@
+[
+  {
+    "name": "rollback_invalid_pinsel",
+    "description": "Verifies that PINSEL conflicts trigger rollback and preserve previous architecture state cleanly.",
+    "turns": [
+      "Generate UART ISR architecture",
+      "add PWM1",
+      "increase queue depth to 32"
+    ]
+  }
+]
