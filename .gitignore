@@ -108,3 +108,21 @@ backend/scratch/
 backend/evaluation/comparison_results/
 backend/evaluation/results/
 backend/evaluation/failures/
+
+# Build artifacts
+*.map
+*.elf
+*.bin
+*.out
+
+# Evaluation outputs
+*_results.txt
+eval_results_*.json
+eval_summary_*.txt
+
+# Debug
+debug_*.py
+debug_*.txt
+
+# Temporary
+archive/
