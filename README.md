@@ -1,97 +1,360 @@
 # Deterministic Embedded RTOS Copilot
 
-A deterministic conversational embedded systems co-pilot for LPC2148 (ARM7TDMI-S) and FreeRTOS 8.x.
+A deterministic embedded systems engineering copilot for LPC2148 (ARM7TDMI-S) and FreeRTOS 8.x.
 
-This copilot provides robust, verified, and state-preserving conversational mutations to firmware architectures, preventing the bugs, register mixups, and invalid scheduling priorities common in standard general-purpose LLM generations.
+The framework performs deterministic RTOS-aware architecture generation, staged firmware mutation, compiler-assisted validation, and hardware constraint enforcement for embedded firmware pipelines.
 
----
-
-## 🚀 Key Features
-
-* **Deterministic Intent Routing**: Classifies queries using a structured routing pipeline to target hardware, RTOS configuration, code generation, or hardware debugging.
-* **Staged Architecture Mutation**: Executes modifications in a transactional manner—processing removals first, resetting state indicators, applying additions, and running rigorous multi-level checks.
-* **Atomic Transactional Rollback**: If compilation or validation checks fail, the system rolls back to the last known-good state automatically.
-* **Fair Compiler Validation**: Automatically compiles every generated firmware block using `arm-none-eabi-gcc -mcpu=arm7tdmi -fsyntax-only` against FreeRTOS and LPC2148 vendor header stubs.
-* **RTOS & Hardware Compliance Auditor**: Detects blocking calls in interrupts, stack size underflows (<68 words), Rate Monotonic Scheduling (RMS) priority inversions, missing VIC acknowledgements, and PINSEL pin overlap conflicts.
+Unlike general-purpose LLM code generation systems, this copilot preserves architectural consistency across conversational modifications while enforcing RTOS scheduling semantics, ISR safety rules, peripheral ownership constraints, and embedded hardware validation checks.
 
 ---
 
-## 📁 Project Structure
+# Overview
+
+The system is designed to support conversational embedded firmware engineering while maintaining deterministic architectural integrity during iterative modifications.
+
+The framework combines:
+
+- RTOS-aware architecture generation
+- Stateful conversational mutation
+- Compiler-assisted firmware validation
+- Deterministic rollback and recovery
+- Hardware-aware constraint analysis
+- Embedded retrieval-augmented reasoning (RAG)
+
+Target platform:
+
+- LPC2148 (ARM7TDMI-S)
+- FreeRTOS 8.x
+- ARM GCC Embedded Toolchain
+
+---
+
+# Core Capabilities
+
+## Deterministic Intent Routing
+
+Queries are classified using a structured routing pipeline that identifies:
+
+- RTOS scheduling requests
+- Peripheral interfacing tasks
+- ISR modification requests
+- Driver generation
+- Architecture mutation operations
+- Hardware debugging workflows
+
+The routing engine prevents unsafe cross-domain mutations during iterative conversational edits.
+
+---
+
+## Stateful Architecture Mutation
+
+The framework maintains persistent conversational firmware state and applies modifications using staged deterministic mutation.
+
+Mutation stages include:
+
+1. Dependency analysis
+2. Resource conflict detection
+3. Removal staging
+4. Architecture rewrite
+5. Validation passes
+6. Rollback protection
+
+This prevents common LLM failure modes such as:
+
+- register corruption
+- duplicate peripheral ownership
+- task desynchronization
+- invalid queue topology
+- RTOS priority conflicts
+
+---
+
+## RTOS-Aware Validation Engine
+
+Generated firmware is validated against embedded systems constraints including:
+
+- ISR-safe API usage
+- FreeRTOS scheduling semantics
+- Queue synchronization correctness
+- Stack allocation constraints
+- RMS priority violations
+- VIC interrupt acknowledgement requirements
+- PINSEL overlap conflicts
+- Peripheral ownership collisions
+
+---
+
+## Compiler-Assisted Verification
+
+All generated firmware blocks are validated using:
+
+```bash
+arm-none-eabi-gcc -mcpu=arm7tdmi -fsyntax-only
+```
+
+Validation is performed against:
+
+- LPC2148 vendor headers
+- FreeRTOS kernel headers
+- RTOS queue/task APIs
+- Peripheral interface stubs
+
+This ensures generated firmware remains syntactically valid under realistic embedded compilation constraints.
+
+---
+
+## Transactional Rollback Protection
+
+If validation or compilation fails:
+
+- the architecture mutation is rejected
+- the previous known-good state is restored
+- inconsistent firmware states are prevented
+
+This enables deterministic conversational architecture evolution.
+
+---
+
+# Project Structure
 
 ```text
 deterministic-rtos-copilot/
 │
 ├── backend/
-│   ├── app/                      # FastAPI Backend server
-│   │   ├── main.py               # Main application entrypoint
-│   │   ├── models/               # Pydantic schemas and dataclasses
-│   │   ├── routes/               # API endpoints (/chat, /ask, etc.)
-│   │   └── services/             # Core engines (architect, modifier, validator, etc.)
+│   │   server.py
 │   │
-│   ├── benchmarks/               # Stress tests and benchmark suites
-│   ├── evaluation/               # Regression and Comparative evaluation suites
-│   │   ├── reference_chatgpt/    # Real conversational baseline snapshots
-│   │   ├── results/              # Evaluation results and logs
-│   │   ├── comparative_reporter.py # Report generator (HTML/MD/DOCX)
-│   │   └── run_comparative_eval.py # Main testbed runner
+│   ├── api/
+│   │       query.py
 │   │
-│   ├── scripts/                  # Compiler check stubs and tools
-│   ├── tests/                    # Integration and unit tests
-│   ├── sdk/                      # Header and library mock files
-│   ├── requirements.txt          # Python requirements list
-│   └── run_eval.py               # Regression evaluation runner entry
+│   ├── core/
+│   │   ├── db/
+│   │   ├── engine/
+│   │   ├── models/
+│   │   └── routes/
+│   │
+│   ├── benchmarks/
+│   ├── evaluation/
+│   ├── scripts/
+│   ├── sdk/
+│   ├── tests/
+│   └── devtools/
 │
-├── frontend/                     # Interactive HTML/JS Web Dashboard
-│   ├── index.html                # Sidebar architecture layout & chat
-│   ├── style.css                 # Dark HSL theme design
-│   └── script.js                 # API bridge and SVG topology renderer
+├── frontend/
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
 │
-├── docs/                         # Engineering Documentation
-│   ├── architecture.md           # Application design and RAG integration
-│   ├── mutation_engine.md        # Transactional staged modification detail
-│   └── evaluation_framework.md   # Sandbox compiler & metrics scoreboard
+├── docs/
+│   ├── architecture.md
+│   ├── mutation_engine.md
+│   ├── evaluation_framework.md
+│   └── reference/
 │
-├── reports/                      # Output Reports & Scorecard
-│   ├── comparison_report_sample.html # Sample generated HTML comparison report
-│   └── benchmark_summary.md      # Summary of copilot vs general LLM baseline
+├── reports/
 │
-├── README.md                     # Main project guide
-├── LICENSE                       # MIT License
-└── .gitignore                    # Python version-control filters
+├── README.md
+├── LICENSE
+├── requirements.txt
+└── .gitignore
 ```
 
 ---
 
-## 🛠️ Quick Start
+# Engine Architecture
 
-### 1. Requirements
-* Python 3.10+
-* ARM GCC Toolchain (to run local syntax compilation checks, configured in `app/routes/query.py`)
+The deterministic reasoning engine is composed of multiple specialized modules.
 
-### 2. Backend Installation & Run
+## Core Engine Modules
+
+```text
+architect.py
+modifier.py
+validator.py
+router.py
+rag.py
+conversation_state.py
+```
+
+### Responsibilities
+
+| Module | Responsibility |
+|---|---|
+| architect.py | RTOS architecture generation |
+| modifier.py | Stateful firmware mutation |
+| validator.py | Embedded constraint enforcement |
+| router.py | Intent routing and query classification |
+| rag.py | Retrieval-augmented embedded knowledge access |
+| conversation_state.py | Stateful conversational architecture tracking |
+
+---
+
+# Example RTOS Pipeline
+
+Example generated architecture:
+
+```text
+UART0 RX ISR
+    ↓
+xQueueSendFromISR()
+    ↓
+Parser Task
+    ↓
+Command Dispatcher Task
+    ↓
+Motor Control Task
+```
+
+Validation checks include:
+
+- ISR-safe queue usage
+- priority inversion analysis
+- stack allocation verification
+- scheduling consistency
+- peripheral ownership validation
+
+---
+
+# Embedded Knowledge Base
+
+The system includes indexed reference material for:
+
+- LPC2148 hardware
+- FreeRTOS kernel behavior
+- RTOS synchronization APIs
+- embedded communication protocols
+- sensor datasheets
+- embedded coding standards
+
+Reference material is stored under:
+
+```text
+docs/reference/
+```
+
+---
+
+# Quick Start
+
+## Requirements
+
+- Python 3.10+
+- ARM GCC Embedded Toolchain
+- FastAPI
+- FreeRTOS-compatible ARM toolchain
+
+---
+
+# Backend Setup
+
 ```bash
-# Navigate to backend directory
 cd backend
 
-# Install dependencies
-pip install -r requirements.txt
+pip install -r ../requirements.txt
 
-# Start the FastAPI server
-python -m uvicorn app.main:app --port 8000 --reload
+python -m uvicorn server:app --port 8000 --reload
 ```
-
-### 3. Frontend Dashboard
-Simply open `frontend/index.html` in your web browser. The dashboard connects to the live FastAPI backend on port 8000, displaying the conversational chat side-by-side with an SVG-rendered peripheral and RTOS task topology graph.
-
-### 4. Running the Benchmarks
-To execute the automated comparative evaluation against the general-purpose LLM response corpus:
-```bash
-# From the backend directory:
-$env:PYTHONPATH="."; python evaluation/run_comparative_eval.py
-```
-This runs 17 turns of conversational requests, compiles code blocks for both sides, evaluates metrics, and outputs comparison scorecards to `evaluation/comparison_results/`.
 
 ---
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+# Frontend Dashboard
+
+Open:
+
+```text
+frontend/index.html
+```
+
+The dashboard connects to the FastAPI backend and visualizes:
+
+- conversational interactions
+- RTOS task topology
+- peripheral routing
+- architecture relationships
+
+---
+
+# Running Evaluations
+
+Run comparative evaluation suites:
+
+```bash
+cd backend
+
+$env:PYTHONPATH="."
+
+python evaluation/run_comparative_eval.py
+```
+
+Evaluation suites test:
+
+- conversational consistency
+- architecture mutation stability
+- rollback correctness
+- RTOS safety enforcement
+- scheduling validation accuracy
+
+---
+
+# Benchmark Focus Areas
+
+The benchmark framework evaluates:
+
+- RTOS reasoning
+- embedded hardware correctness
+- conversational state preservation
+- architecture mutation accuracy
+- deterministic rollback behavior
+- protocol configuration validity
+- scheduling consistency
+
+---
+
+# Safety Constraints Enforced
+
+The framework explicitly prevents:
+
+- blocking APIs inside ISRs
+- invalid RTOS task priorities
+- unsafe interrupt synchronization
+- duplicate peripheral mappings
+- invalid queue access patterns
+- stack under-allocation
+- unsafe scheduler mutations
+
+---
+
+# Target Use Cases
+
+- RTOS firmware prototyping
+- conversational firmware mutation
+- embedded architecture generation
+- ISR/task pipeline generation
+- hardware debugging assistance
+- educational RTOS experimentation
+- embedded systems validation research
+
+---
+
+# Future Improvements
+
+Planned extensions include:
+
+- STM32 platform support
+- Zephyr RTOS integration
+- static timing analysis
+- CAN/LIN protocol validation
+- multicore scheduling support
+- hardware-in-the-loop validation
+- automated architecture visualization
+
+---
+
+# License
+
+This project is licensed under the MIT License.
+
+See:
+
+```text
+LICENSE
+```
