@@ -1,7 +1,0 @@
-{
-  "query": "Generate polling sensor architecture",
-  "response": "Here is a polling sensor architecture for FreeRTOS. It uses an Arduino analogRead mapping.\n\n```c\n#include \"FreeRTOS.h\"\n#include \"task.h\"\n\nvoid vSensorTask(void *pvParameters)\n{\n    for(;;)\n    {\n        // Arduino style analogRead API mismatch\n        int val = analogRead(A0);\n        vTaskDelay(pdMS_TO_TICKS(100)); // Poll every 100ms\n    }\n}\n\nint main(void)\n{\n    xTaskCreate(vSensorTask, \"Sensor\", 128, NULL, 1, NULL);\n    vTaskStartScheduler();\n    for(;;);\n}\n```",
-  "code": "#include \"FreeRTOS.h\"\n#include \"task.h\"\n\nvoid vSensorTask(void *pvParameters)\n{\n    for(;;)\n    {\n        int val = analogRead(A0);\n        vTaskDelay(pdMS_TO_TICKS(100));\n    }\n}\n\nint main(void)\n{\n    xTaskCreate(vSensorTask, \"Sensor\", 128, NULL, 1, NULL);\n    vTaskStartScheduler();\n    for(;;);\n}",
-  "timestamp": "2026-05-26T00:10:00Z",
-  "model": "gpt-4"
-}
